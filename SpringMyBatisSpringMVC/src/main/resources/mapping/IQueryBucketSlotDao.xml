@@ -1,0 +1,224 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.quicktron.business.dao.IQueryBucketSlotDao">
+    <resultMap id="BaseResultMap" type="com.quicktron.business.entities.BucketTaskVO">
+        <id column="id" property="id" jdbcType="BIGINT"/>
+        <result column="bucket_code" property="bucketCode" jdbcType="VARCHAR"/>
+        <result column="end_point" property="endPoint" jdbcType="VARCHAR"/>
+        <result column="task_status" property="taskStatus" jdbcType="VARCHAR" />
+        <result column="end_point" property="endPoint" jdbcType="VARCHAR" />
+        <result column="create_by" property="createBy" jdbcType="VARCHAR" />
+        <result column="slot_code" property="slotCode" jdbcType="VARCHAR" />
+        <result column="lpn" property="lpn" jdbcType="VARCHAR" />
+        <result column="create_time" property="createTime" jdbcType="VARCHAR" />
+        <result column="update_time" property="updateTime" jdbcType="VARCHAR" />
+    </resultMap>
+
+    <!--查询库存-->
+    <sql id="lpnDataCondition">
+        <if test="_vo.bucketCode != null" >
+            and b.bucket_code = #{_vo.bucketCode,jdbcType=VARCHAR}
+        </if>
+        <if test="_vo.slotCode != null" >
+            and s.slot_code = #{_vo.slotCode,jdbcType=VARCHAR}
+        </if>
+        <if test="_vo.lpn != null" >
+            and s.lpn = #{_vo.lpn,jdbcType=VARCHAR}
+        </if>
+        <if test="_vo.taskStatus != null" >
+            and t.task_status = #{_vo.taskStatus,jdbcType=VARCHAR}
+        </if>
+    </sql>
+
+    <select id="queryLpnData" resultMap="BaseResultMap">
+        select b.bucket_code,
+               b.bucket_status, --要转换
+               b.point_code,
+               t.end_point,
+               s.slot_code,
+               s.lpn,
+               s.create_time
+         from qt_bucket b,
+              qt_slot s,
+              qt_bucket_task t
+        where b.bucket_code = s.bucket_code
+          and b.bucket_code = t.bucket_code
+        <include refid="lpnDataCondition" />
+        limit #{_curPage,jdbcType=INTEGER} ,#{_pageSize,jdbcType=INTEGER}
+    </select>
+
+    <select id="queryLpnDataCnt" resultType="java.lang.Integer">
+        select count(1)
+        from qt_bucket b,
+             qt_slot s,
+             qt_bucket_task t
+        where b.bucket_code = s.bucket_code
+          and b.bucket_code = t.bucket_code
+        <include refid="lpnDataCondition" />
+    </select>
+
+    <!--出入库查询-->
+    <sql id="invInOutCondition">
+        <if test="_vo.operateType != null" >
+            and t.logType = #{_vo.operateType,jdbcType=VARCHAR}
+        </if>
+        <if test="_vo.slotCode != null" >
+            and t.logKey = #{_vo.slotCode,jdbcType=VARCHAR}
+        </if>
+        <if test="_vo.lpn != null" >
+            and t.attribute1 = #{_vo.lpn,jdbcType=VARCHAR}
+        </if>
+        <if test="_vo.createTime != null" >
+            and t.createTime = #{_vo.createTime,jdbcType=TIMESTAMP}
+        </if>
+    </sql>
+
+    <select id="queryInvInOut" resultType="com.quicktron.business.entities.OperateLogVO">
+        select t.log_key as "logKey",
+               t.attribute1 as "attribute1",
+               t.log_type as "logType",
+               t.create_by as "createBy"
+          from qt_operate_log t
+         where log_type in('up','down')
+        <include refid="invInOutCondition" />
+        limit #{_curPage,jdbcType=INTEGER} ,#{_pageSize,jdbcType=INTEGER}
+    </select>
+
+    <select id="queryInvInOutCnt" resultType="java.lang.Integer">
+        select count(1)
+          from qt_operate_log t
+         where log_type in('up','down')
+        <include refid="invInOutCondition" />
+    </select>
+
+    <!-- 查询货架任务 -->
+<!--    <select id="queryBucketTask" resultMap="BaseResultMap" parameterType="java.lang.String">-->
+<!--        SELECT-->
+<!--	         bucket_code,-->
+<!--	         end_point-->
+<!--          FROM qt_bucket_task-->
+<!--         where bucket_code =#{_bucket,jdbcType=VARCHAR}-->
+<!--    </select>-->
+    <sql id="bucketTaskCondition">
+        <if test="_vo.bucketCode != null" >
+            and b.bucket_code = #{_vo.bucketCode,jdbcType=VARCHAR}
+        </if>
+        <if test="_vo.taskStatus != null" >
+            and t.task_status = #{_vo.taskStatus,jdbcType=VARCHAR}
+        </if>
+        <if test="_vo.pointCode != null" >
+            and b.point_code = #{_vo.pointCode,jdbcType=VARCHAR}
+        </if>
+
+        <if test="_vo.endPoint != null" >
+            and t.end_point = #{_vo.endPoint,jdbcType=VARCHAR}
+        </if>
+
+        <if test="_vo.createTime != null" >
+            and t.createTime = #{_vo.createTime,jdbcType=TIMESTAMP}
+        </if>
+	</sql>
+
+    <select id="queryBucketTask" resultMap="BaseResultMap">
+        select b.bucket_code,
+               t.task_status,
+               b.point_code,
+               t.end_point,
+               t.create_by,
+               t.create_time,
+               t.update_time
+          from qt_bucket b,
+               qt_bucket_task t
+        where b.bucket_code = t.bucket_code
+        <include refid="bucketTaskCondition" />
+        limit #{_curPage,jdbcType=INTEGER} ,#{_pageSize,jdbcType=INTEGER}
+    </select>
+
+    <select id="queryBucketTaskCnt" resultType="java.lang.Integer">
+        select count(1)
+          from qt_bucket b,
+               qt_bucket_task t
+         where b.bucket_code = t.bucket_code
+        <include refid="bucketTaskCondition" />
+    </select>
+
+    <!--拣货查询-->
+    <sql id="pickTaskCondition">
+        <if test="_vo.bucketCode != null" >
+            and b.bucket_code = #{_vo.bucketCode,jdbcType=VARCHAR}
+        </if>
+        <if test="_vo.taskStatus != null" >
+            and t.task_status = #{_vo.taskStatus,jdbcType=VARCHAR}
+        </if>
+        <if test="_vo.pointCode != null" >
+            and bu.point_code = #{_vo.pointCode,jdbcType=VARCHAR}
+        </if>
+
+        <if test="_vo.endPoint != null" >
+            and t.end_point = #{_vo.endPoint,jdbcType=VARCHAR}
+        </if>
+
+        <if test="_vo.createTime != null" >
+            and p.createTime = #{_vo.createTime,jdbcType=TIMESTAMP}
+        </if>
+    </sql>
+
+    <select id="queryPickTask" resultMap="BaseResultMap">
+        select  b.bucket_code,
+                t.task_status,
+                b.slot_code,
+                b.lpn,
+                p.create_by,
+                p.create_time,
+                p.update_time
+         from   qt_slot b,
+                qt_bucket_task t,
+                qt_pick_task   p,
+                qt_bucket bu
+        where b.bucket_code = t.bucket_code
+          and b.slot_code = p.slot_code
+          and b.bucket_code = bu.bucket_code
+        <include refid="pickTaskCondition" />
+        limit #{_curPage,jdbcType=INTEGER} ,#{_pageSize,jdbcType=INTEGER}
+    </select>
+
+    <select id="queryPickTaskCnt" resultType="java.lang.Integer">
+        select  count(1)
+          from qt_slot b,
+               qt_bucket_task t,
+               qt_pick_task   p,
+               qt_bucket bu
+        where b.bucket_code = t.bucket_code
+          and b.slot_code = p.slot_code
+          and b.bucket_code = bu.bucket_code
+        <include refid="pickTaskCondition" />
+    </select>
+
+    <!--batch pick lpn-->
+<!--    <select id="getInfo" statementType="CALLABLE" resultMap="infoResultMap" parameterType="java.util.HashMap">-->
+<!--      {call net_procedure_request(#{select_type,mode=IN,jdbcType=VARCHAR},-->
+<!--                                  #{client_ip,mode=IN,jdbcType=VARCHAR},-->
+<!--                                  #{t_error,jdbcType=INTEGER,mode=OUT})}-->
+<!--    </select>-->
+
+    <select id="queryActiveTaskByBuck" resultType="java.lang.Integer">
+        select  count(1)
+          from  qt_bucket_task t
+         where 1 = 1
+           and t.bucket_code =  #{_buck,jdbcType=VARCHAR}
+           and t.task_status >= 0
+           AND t.task_status <![CDATA[ < ]]> 99
+    </select>
+
+    <insert id="insertPickTask" parameterType="java.util.List">
+        INSERT INTO qt_pick_task(lpn,bucket_code,slot_code,task_status,ws_code,create_by,create_time,update_by,update_time)
+        VALUES
+        <foreach collection="_lpnList" item="item" index="index" separator=",">
+            (1,1,1,1,1,1,sysdate(),1,sysdate())
+        </foreach>
+    </insert>
+</mapper>
