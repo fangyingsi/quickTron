@@ -3,8 +3,11 @@ package com.quicktron.business.entities;
 import lombok.Data;
 
 @Data
-public class ReportParamInVO {
+public class ReportParamInVO extends TableBaseVO{
 
+    /*工作站编码
+     */
+    private String wsCode;
     /*货架编码
     */
     private String bucketCode;
@@ -26,11 +29,11 @@ public class ReportParamInVO {
     /*lpn
      */
     private String lpn;
-    /*创建时间
-     */
-    private String createTime;
-
-    private Integer updateBy;
+//    /*创建时间
+//     */
+//    private String createTime;
+//
+//    private Integer updateBy;
     /*操作类型
      */
     private String operateType;

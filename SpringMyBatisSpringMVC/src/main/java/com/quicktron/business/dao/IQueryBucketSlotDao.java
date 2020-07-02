@@ -2,11 +2,20 @@ package com.quicktron.business.dao;
 
 import com.quicktron.business.entities.BucketTaskVO;
 import com.quicktron.business.entities.ReportParamInVO;
+import com.quicktron.business.entities.UserVO;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
 public interface IQueryBucketSlotDao {
+
+    /*查询工作站
+    * */
+    int queryStationCnt(@Param("_wsCode")String wsCode);
+
+    /*查询login user
+     * */
+    UserVO queryUser(@Param("_vo")UserVO user);
 
     /*库存查询
      * */

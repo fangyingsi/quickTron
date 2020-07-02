@@ -18,6 +18,23 @@
         <result column="update_time" property="updateTime" jdbcType="VARCHAR" />
     </resultMap>
 
+    <select id="queryStationCnt" resultType="java.lang.Integer">
+        select count(1)
+         from qt_station b
+        where b.ws_code =  #{_wsCode,jdbcType=VARCHAR}
+    </select>
+
+    <select id="queryUser" resultType="com.quicktron.business.entities.UserVO">
+        select id as "id",
+               user_code as "userCode",
+               user_name as "userName",
+               password as "passWord"
+         from qt_user b
+        where b.user_code =  #{_vo.userCode,jdbcType=VARCHAR}
+          and b.user_name =  #{_vo.userName,jdbcType=VARCHAR}
+          limit 1
+    </select>
+
     <!--查询库存-->
     <sql id="lpnDataCondition">
         <if test="_vo.bucketCode != null" >
@@ -218,7 +235,15 @@
         INSERT INTO qt_pick_task(lpn,bucket_code,slot_code,task_status,ws_code,create_by,create_time,update_by,update_time)
         VALUES
         <foreach collection="_lpnList" item="item" index="index" separator=",">
-            (1,1,1,1,1,1,sysdate(),1,sysdate())
+            (#{item.lpn},
+             #{item.bucketCode},
+             #{item.slotCode},
+             #{item.taskStatus},
+             #{item.wsCode},
+             #{item.createBy},
+             sysdate(),
+            #{item.updateBy},
+             sysdate())
         </foreach>
     </insert>
 </mapper>

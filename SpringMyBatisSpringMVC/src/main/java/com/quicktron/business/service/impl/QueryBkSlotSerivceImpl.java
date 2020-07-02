@@ -3,6 +3,7 @@ package com.quicktron.business.service.impl;
 import com.quicktron.business.dao.IQueryBucketSlotDao;
 import com.quicktron.business.entities.BucketTaskVO;
 import com.quicktron.business.entities.ReportParamInVO;
+import com.quicktron.business.entities.UserVO;
 import com.quicktron.business.service.IQueryBkSlotSerivce;
 import com.quicktron.common.utils.PageInfo;
 import com.quicktron.common.utils.QuicktronException;
@@ -21,7 +22,39 @@ public class QueryBkSlotSerivceImpl implements IQueryBkSlotSerivce {
     private static final Logger LOGGER = Logger.getLogger(QueryBkSlotSerivceImpl.class);
 
     @Resource
-    private IQueryBucketSlotDao IQueryBucketSlotDao;
+    private IQueryBucketSlotDao queryBucketSlotDao;
+
+    /*
+    login
+    **/
+    public Map<String, Object> login(UserVO paramInVO){
+        Map<String, Object> responseMap = new HashMap<String, Object>();
+        responseMap.put("returnStatus","success");
+        responseMap.put("returnMessage","ok");
+
+        try{
+            //确认工作站是否有效
+            int wsCnt =queryBucketSlotDao.queryStationCnt(paramInVO.getWsCode());
+            if(wsCnt==0){
+                throw new QuicktronException("the station code is invalid.");
+            }
+
+            UserVO loginedUser = queryBucketSlotDao.queryUser(paramInVO);
+            if(loginedUser == null){
+                throw new QuicktronException("the user code or password is invalid.");
+            }
+
+            Map<String, Object> dataMap = new HashMap<String, Object>();
+            dataMap.put("rows", loginedUser);
+            dataMap.put("total", 1);
+            responseMap.put("data",dataMap);
+        }catch(Exception e){
+            responseMap.put("returnStatus","fail");
+            responseMap.put("returnMessage",e.getMessage());
+        }
+
+        return responseMap;
+    }
 
     /*
     库存查询
@@ -29,8 +62,8 @@ public class QueryBkSlotSerivceImpl implements IQueryBkSlotSerivce {
     public List<BucketTaskVO> queryLpnData(ReportParamInVO paramInVO, PageInfo<BucketTaskVO> pageInfo){
         int pageNo = (pageInfo.getCurrentPage()-1)*pageInfo.getPageSize();
 
-        pageInfo.setTotalRecords(IQueryBucketSlotDao.queryLpnDataCnt(paramInVO));
-        return IQueryBucketSlotDao.queryLpnData(paramInVO,pageNo,pageInfo.getPageSize());
+        pageInfo.setTotalRecords(queryBucketSlotDao.queryLpnDataCnt(paramInVO));
+        return queryBucketSlotDao.queryLpnData(paramInVO,pageNo,pageInfo.getPageSize());
     }
 
     /*
@@ -39,8 +72,8 @@ public class QueryBkSlotSerivceImpl implements IQueryBkSlotSerivce {
     public List<BucketTaskVO> queryInvInOut(ReportParamInVO paramInVO, PageInfo<BucketTaskVO> pageInfo){
         int pageNo = (pageInfo.getCurrentPage()-1)*pageInfo.getPageSize();
 
-        pageInfo.setTotalRecords(IQueryBucketSlotDao.queryInvInOutCnt(paramInVO));
-        return IQueryBucketSlotDao.queryInvInOut(paramInVO,pageNo,pageInfo.getPageSize());
+        pageInfo.setTotalRecords(queryBucketSlotDao.queryInvInOutCnt(paramInVO));
+        return queryBucketSlotDao.queryInvInOut(paramInVO,pageNo,pageInfo.getPageSize());
     }
 
     /*
@@ -49,8 +82,8 @@ public class QueryBkSlotSerivceImpl implements IQueryBkSlotSerivce {
     public List<BucketTaskVO> queryBucketTask(ReportParamInVO paramInVO, PageInfo<BucketTaskVO> pageInfo){
         int pageNo = (pageInfo.getCurrentPage()-1)*pageInfo.getPageSize();
 
-        pageInfo.setTotalRecords(IQueryBucketSlotDao.queryBucketTaskCnt(paramInVO));
-        return IQueryBucketSlotDao.queryBucketTask(paramInVO,pageNo,pageInfo.getPageSize());
+        pageInfo.setTotalRecords(queryBucketSlotDao.queryBucketTaskCnt(paramInVO));
+        return queryBucketSlotDao.queryBucketTask(paramInVO,pageNo,pageInfo.getPageSize());
     }
 
     /*
@@ -59,8 +92,8 @@ public class QueryBkSlotSerivceImpl implements IQueryBkSlotSerivce {
     public List<BucketTaskVO> queryPickTask(ReportParamInVO paramInVO, PageInfo<BucketTaskVO> pageInfo){
 
         int pageNo = (pageInfo.getCurrentPage()-1)*pageInfo.getPageSize();
-        pageInfo.setTotalRecords(IQueryBucketSlotDao.queryPickTaskCnt(paramInVO));
-        return IQueryBucketSlotDao.queryPickTask(paramInVO,pageNo,pageInfo.getPageSize());
+        pageInfo.setTotalRecords(queryBucketSlotDao.queryPickTaskCnt(paramInVO));
+        return queryBucketSlotDao.queryPickTask(paramInVO,pageNo,pageInfo.getPageSize());
     }
 
     /*
@@ -80,7 +113,7 @@ public class QueryBkSlotSerivceImpl implements IQueryBkSlotSerivce {
 
                 //货架有没有正在进行的任务
                 //如果是导入，一定要货架列到模板中
-                int activeTaskCnt = IQueryBucketSlotDao.queryActiveTaskByBuck(paramInVO.getBucketCode());
+                int activeTaskCnt = queryBucketSlotDao.queryActiveTaskByBuck(paramInVO.getBucketCode());
                 if(activeTaskCnt>0){
                     throw new QuicktronException("there has been a active task of the bucket:"+paramInVO.getBucketCode());
                 }
@@ -92,7 +125,7 @@ public class QueryBkSlotSerivceImpl implements IQueryBkSlotSerivce {
         }
 
         //放入pick task表
-        IQueryBucketSlotDao.insertPickTask(slotLpnList);
+        queryBucketSlotDao.insertPickTask(slotLpnList);
 
         return responseMap;
     }

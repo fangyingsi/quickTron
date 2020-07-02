@@ -2,6 +2,7 @@ package com.quicktron.business.controller;
 
 import com.quicktron.business.entities.BucketTaskVO;
 import com.quicktron.business.entities.ReportParamInVO;
+import com.quicktron.business.entities.UserVO;
 import com.quicktron.business.service.IQueryBkSlotSerivce;
 import com.quicktron.business.service.impl.QueryBkSlotSerivceImpl;
 import com.quicktron.common.utils.PageInfo;
@@ -10,6 +11,7 @@ import org.apache.log4j.Logger;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -20,6 +22,32 @@ public class PcQyBuckSlotController {
 
     @Resource
     private IQueryBkSlotSerivce queryBkSlotSerivce;
+
+    /*
+    登录
+    **/
+    @ResponseBody
+    @RequestMapping(value = "/login",method=RequestMethod.POST)
+    public Map<String, Object> login(@RequestBody Map<String,String> map){
+        //返回值
+        Map<String, Object> responseMap = new HashMap<String, Object>();
+        try {
+            //获取入参到VO中,要传入usercode、password,wscode
+            UserVO paramInVO = new UserVO();
+            paramInVO.setUserCode(map.get("userCode"));
+            paramInVO.setPassWord(map.get("passWord"));
+            paramInVO.setWsCode(map.get("wsCode"));
+
+            return queryBkSlotSerivce.login(paramInVO);
+
+        }catch(Exception e){
+            LOGGER.error("Internal error:"+e.getMessage());
+            responseMap.put("returnStatus","fail");
+            responseMap.put("returnMessage","Internal error");
+        }
+        return responseMap;
+
+    }
 
     /*
     库存查询
@@ -76,7 +104,7 @@ public class PcQyBuckSlotController {
             paramInVO.setSlotCode(map.get("slotCode"));
             paramInVO.setOperateType(map.get("operateType"));
             paramInVO.setLpn(map.get("lpn"));
-            paramInVO.setCreateTime(map.get("createTime"));
+            paramInVO.setCreateTime(new Date(map.get("createTime")));
             //分页
             PageInfo<BucketTaskVO> pageInfo = new PageInfo<BucketTaskVO>();
             pageInfo.setCurrentPage(curPage);
@@ -116,7 +144,7 @@ public class PcQyBuckSlotController {
             paramInVO.setBucketCode(map.get("bucketCode"));
             paramInVO.setTaskStatus(map.get("taskStatus"));
             paramInVO.setPointCode(map.get("pointCode"));
-            paramInVO.setCreateTime(map.get("createTime"));
+            paramInVO.setCreateTime(new Date(map.get("createTime")));
             //分页
             PageInfo<BucketTaskVO> pageInfo = new PageInfo<BucketTaskVO>();
             pageInfo.setCurrentPage(curPage);
@@ -154,7 +182,7 @@ public class PcQyBuckSlotController {
             paramInVO.setBucketCode(map.get("bucketCode"));
             paramInVO.setTaskStatus(map.get("taskStatus"));
             paramInVO.setPointCode(map.get("pointCode"));
-            paramInVO.setCreateTime(map.get("createTime"));
+            paramInVO.setCreateTime(new Date(map.get("createTime")));
 
             PageInfo<BucketTaskVO> pageInfo = new PageInfo<BucketTaskVO>();
             pageInfo.setCurrentPage(curPage);
@@ -183,18 +211,15 @@ public class PcQyBuckSlotController {
    @ResponseBody
    @RequestMapping(value = "/batchPickLpn",method=RequestMethod.POST)
    public Map<String, Object> batchPickLpn(@RequestBody List<ReportParamInVO> slotLpnList){
-       //返回值
-       Map<String, Object> responseMap = new HashMap<String, Object>();
-       //可以通过导入方式下发拣货任务
-       //传参中有没有货位，LPN为空的记录
-       for(ReportParamInVO paramInVO : slotLpnList){
-           if(StringUtils.isEmpty(paramInVO.getSlotCode())||StringUtils.isEmpty(paramInVO.getLpn())){
-               responseMap.put("returnStatus","fail");
-               responseMap.put("returnMessage","the slotCode or lpn is null.");
-           }
+
+       try{
+           return queryBkSlotSerivce.batchPickLpn(slotLpnList);
+       }catch (Exception e){
+           Map<String, Object> responseMap = new HashMap<String, Object>();
+           responseMap.put("returnStatus","fail");
+           responseMap.put("returnMessage",e.getMessage());
+           return responseMap;
        }
 
-
-        return null;
     }
 }
