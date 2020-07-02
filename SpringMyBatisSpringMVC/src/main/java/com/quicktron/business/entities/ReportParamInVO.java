@@ -26,6 +26,9 @@ public class ReportParamInVO extends TableBaseVO{
     /*目标点位
      */
     private String endPoint;
+    /*目标区域
+     */
+    private String endArea;
     /*lpn
      */
     private String lpn;

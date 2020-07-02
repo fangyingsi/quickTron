@@ -31,29 +31,29 @@
                password as "passWord"
          from qt_user b
         where b.user_code =  #{_vo.userCode,jdbcType=VARCHAR}
-          and b.user_name =  #{_vo.userName,jdbcType=VARCHAR}
+          and b.password =  #{_vo.passWord,jdbcType=VARCHAR}
           limit 1
     </select>
 
     <!--查询库存-->
     <sql id="lpnDataCondition">
-        <if test="_vo.bucketCode != null" >
+        <if test="_vo.bucketCode != null and _vo.bucketCode !=''" >
             and b.bucket_code = #{_vo.bucketCode,jdbcType=VARCHAR}
         </if>
-        <if test="_vo.slotCode != null" >
+        <if test="_vo.slotCode != null  and _vo.slotCode !=''" >
             and s.slot_code = #{_vo.slotCode,jdbcType=VARCHAR}
         </if>
-        <if test="_vo.lpn != null" >
+        <if test="_vo.lpn != null  and _vo.lpn !=''" >
             and s.lpn = #{_vo.lpn,jdbcType=VARCHAR}
         </if>
-        <if test="_vo.taskStatus != null" >
+        <if test="_vo.taskStatus != null and _vo.taskStatus !=''" >
             and t.task_status = #{_vo.taskStatus,jdbcType=VARCHAR}
         </if>
     </sql>
 
     <select id="queryLpnData" resultMap="BaseResultMap">
         select b.bucket_code,
-               b.bucket_status, --要转换
+               b.bucket_status,
                b.point_code,
                t.end_point,
                s.slot_code,
@@ -80,16 +80,16 @@
 
     <!--出入库查询-->
     <sql id="invInOutCondition">
-        <if test="_vo.operateType != null" >
+        <if test="_vo.operateType != null and _vo.operateType !=''" >
             and t.logType = #{_vo.operateType,jdbcType=VARCHAR}
         </if>
-        <if test="_vo.slotCode != null" >
+        <if test="_vo.slotCode != null and _vo.slotCode !=''" >
             and t.logKey = #{_vo.slotCode,jdbcType=VARCHAR}
         </if>
-        <if test="_vo.lpn != null" >
+        <if test="_vo.lpn != null and _vo.lpn !=''" >
             and t.attribute1 = #{_vo.lpn,jdbcType=VARCHAR}
         </if>
-        <if test="_vo.createTime != null" >
+        <if test="_vo.createTime != null and _vo.createTime !=''" >
             and t.createTime = #{_vo.createTime,jdbcType=TIMESTAMP}
         </if>
     </sql>
@@ -121,21 +121,21 @@
 <!--         where bucket_code =#{_bucket,jdbcType=VARCHAR}-->
 <!--    </select>-->
     <sql id="bucketTaskCondition">
-        <if test="_vo.bucketCode != null" >
+        <if test="_vo.bucketCode != null and _vo.bucketCode !=''" >
             and b.bucket_code = #{_vo.bucketCode,jdbcType=VARCHAR}
         </if>
-        <if test="_vo.taskStatus != null" >
+        <if test="_vo.taskStatus != null and _vo.taskStatus !=''" >
             and t.task_status = #{_vo.taskStatus,jdbcType=VARCHAR}
         </if>
-        <if test="_vo.pointCode != null" >
+        <if test="_vo.pointCode != null and _vo.pointCode !=''" >
             and b.point_code = #{_vo.pointCode,jdbcType=VARCHAR}
         </if>
 
-        <if test="_vo.endPoint != null" >
+        <if test="_vo.endPoint != null and _vo.endPoint !=''" >
             and t.end_point = #{_vo.endPoint,jdbcType=VARCHAR}
         </if>
 
-        <if test="_vo.createTime != null" >
+        <if test="_vo.createTime != null and _vo.createTime !=''" >
             and t.createTime = #{_vo.createTime,jdbcType=TIMESTAMP}
         </if>
 	</sql>
@@ -165,21 +165,21 @@
 
     <!--拣货查询-->
     <sql id="pickTaskCondition">
-        <if test="_vo.bucketCode != null" >
+        <if test="_vo.bucketCode != null and _vo.bucketCode !=''" >
             and b.bucket_code = #{_vo.bucketCode,jdbcType=VARCHAR}
         </if>
-        <if test="_vo.taskStatus != null" >
+        <if test="_vo.taskStatus != null and _vo.taskStatus !=''" >
             and t.task_status = #{_vo.taskStatus,jdbcType=VARCHAR}
         </if>
-        <if test="_vo.pointCode != null" >
+        <if test="_vo.pointCode != null and _vo.pointCode !=''" >
             and bu.point_code = #{_vo.pointCode,jdbcType=VARCHAR}
         </if>
 
-        <if test="_vo.endPoint != null" >
+        <if test="_vo.endPoint != null and _vo.endPoint !=''" >
             and t.end_point = #{_vo.endPoint,jdbcType=VARCHAR}
         </if>
 
-        <if test="_vo.createTime != null" >
+        <if test="_vo.createTime != null and _vo.createTime !=''" >
             and p.createTime = #{_vo.createTime,jdbcType=TIMESTAMP}
         </if>
     </sql>
@@ -242,7 +242,7 @@
              #{item.wsCode},
              #{item.createBy},
              sysdate(),
-            #{item.updateBy},
+             #{item.updateBy},
              sysdate())
         </foreach>
     </insert>

@@ -6,8 +6,10 @@ import com.quicktron.business.entities.UserVO;
 import com.quicktron.business.service.IQueryBkSlotSerivce;
 import com.quicktron.business.service.impl.QueryBkSlotSerivceImpl;
 import com.quicktron.common.utils.PageInfo;
+import com.quicktron.common.utils.QuicktronException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -73,6 +75,9 @@ public class PcQyBuckSlotController {
 
             Map<String, Object> dataMap = new HashMap<String, Object>();
             List<BucketTaskVO> buckList = queryBkSlotSerivce.queryLpnData(paramInVO, pageInfo);
+            if(CollectionUtils.isEmpty(buckList)){
+                throw new QuicktronException("cann not find any data.");
+            }
             dataMap.put("rows", buckList);
             dataMap.put("total", pageInfo.getTotalRecords());
             //拼接返回值
@@ -82,7 +87,7 @@ public class PcQyBuckSlotController {
         }catch(Exception e){
             LOGGER.error("Internal error:"+e.getMessage());
             responseMap.put("returnStatus","fail");
-            responseMap.put("returnMessage","Internal error");
+            responseMap.put("returnMessage",e.getMessage());
         }
         return responseMap;
 
@@ -112,6 +117,9 @@ public class PcQyBuckSlotController {
 
             Map<String, Object> dataMap = new HashMap<String, Object>();
             List<BucketTaskVO> buckList = queryBkSlotSerivce.queryInvInOut(paramInVO, pageInfo);
+            if(CollectionUtils.isEmpty(buckList)){
+                throw new QuicktronException("cann not find any data.");
+            }
             dataMap.put("rows", buckList);
             dataMap.put("total", pageInfo.getTotalRecords());
             //拼接返回值
@@ -121,7 +129,7 @@ public class PcQyBuckSlotController {
         }catch(Exception e){
             LOGGER.error("Internal error:"+e.getMessage());
             responseMap.put("returnStatus","fail");
-            responseMap.put("returnMessage","Internal error");
+            responseMap.put("returnMessage",e.getMessage());
         }
         return responseMap;
 
@@ -152,6 +160,9 @@ public class PcQyBuckSlotController {
 
             Map<String, Object> dataMap = new HashMap<String, Object>();
             List<BucketTaskVO> buckList = queryBkSlotSerivce.queryBucketTask(paramInVO, pageInfo);
+            if(CollectionUtils.isEmpty(buckList)){
+                throw new QuicktronException("cann not find any data.");
+            }
             dataMap.put("rows", buckList);
             dataMap.put("total", pageInfo.getTotalRecords());
             //拼接返回值
@@ -190,6 +201,9 @@ public class PcQyBuckSlotController {
 
             Map<String, Object> dataMap = new HashMap<String, Object>();
             List<BucketTaskVO> pickList = queryBkSlotSerivce.queryPickTask(paramInVO, pageInfo);
+            if(CollectionUtils.isEmpty(pickList)){
+                throw new QuicktronException("cann not find any data.");
+            }
             dataMap.put("rows", pickList);
             dataMap.put("total", pageInfo.getTotalRecords());
             //拼接返回值

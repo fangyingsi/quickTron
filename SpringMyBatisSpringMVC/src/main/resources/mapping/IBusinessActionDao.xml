@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.quicktron.business.dao.IBusinessActionDao">
+
+        <select id="queryActivePickTask" resultType="java.lang.Integer">
+            SELECT count(1)
+              from qt_bucket b,
+                   qt_slot s,
+                   qt_pick_task t
+             where b.bucket_code = s.bucket_code
+               and b.bucket_code = t.bucket_code
+               and s.slot_code = #{_slotCode,mode=IN,jdbcType=VARCHAR}
+               and t.task_status >=0
+               and t.task_status <![CDATA[ < ]]> 99
+               limit 1;
+        </select>
+<!--    -->
+<!--    <select id="getInfo" statementType="CALLABLE" resultMap="infoResultMap" parameterType="java.util.HashMap">-->
+<!--      {call net_procedure_request(#{select_type,mode=IN,jdbcType=VARCHAR},-->
+<!--                                  #{client_ip,mode=IN,jdbcType=VARCHAR},-->
+<!--                                  #{t_error,jdbcType=INTEGER,mode=OUT})}-->
+<!--    </select>-->
+
+<!--    <insert id="insertPickTask" parameterType="java.util.List">-->
+<!--        INSERT INTO qt_pick_task(lpn,bucket_code,slot_code,task_status,ws_code,create_by,create_time,update_by,update_time)-->
+<!--        VALUES-->
+<!--        <foreach collection="_lpnList" item="item" index="index" separator=",">-->
+<!--            (#{item.lpn},-->
+<!--             #{item.bucketCode},-->
+<!--             #{item.slotCode},-->
+<!--             #{item.taskStatus},-->
+<!--             #{item.wsCode},-->
+<!--             #{item.createBy},-->
+<!--             sysdate(),-->
+<!--            #{item.updateBy},-->
+<!--             sysdate())-->
+<!--        </foreach>-->
+<!--    </insert>-->
+<!--        <select id="queryLpnSlotCnt" resultType="java.lang.Integer">-->
+<!--            select count(1)-->
+<!--              from qt_slot s,-->
+<!--             where s.slot_code =#{_slotCode,jdbcType=VARCHAR}-->
+<!--               and s.lpn = #{_lpn,jdbcType=VARCHAR}-->
+<!--        </select>-->
+
+        <!--上下架-->
+        <select id="updateLpnSlotRelat" statementType="CALLABLE" resultType="java.lang.String">
+          {call p_qt_lpn_slot_operate(#{_vo.lpn,mode=IN,jdbcType=VARCHAR},
+                                      #{_vo.slotCode,mode=IN,jdbcType=VARCHAR},
+                                      #{_vo.updateBy,mode=IN,jdbcType=VARCHAR},
+                                      #{_vo.operateType,mode=IN,jdbcType=VARCHAR},
+                                      #{_returnMessage,mode=OUT,jdbcType=VARCHAR}
+                                      )}
+        </select>
+
+        <select id="refreshTask" statementType="CALLABLE" resultType="java.lang.String">
+          {call p_qt_update_bucket_task(#{_vo.id,mode=IN,jdbcType=INTEGER},
+                                        #{_vo.bucketCode,mode=IN,jdbcType=VARCHAR},
+                                        #{_vo.taskStatus,mode=IN,jdbcType=VARCHAR},
+                                        #{_returnMessage,mode=OUT,jdbcType=VARCHAR}
+                                        )}
+        </select>
+
+       <select id="releaseBucket" statementType="CALLABLE" resultType="java.lang.String">
+          {call p_qt_release_bucket(#{_vo.wsCode,mode=IN,jdbcType=VARCHAR},
+                                    #{_vo.slotCode,mode=IN,jdbcType=VARCHAR},
+                                    #{_vo.endArea,mode=IN,jdbcType=VARCHAR},
+									#{_vo.createBy,mode=IN,jdbcType=INTEGER},
+									#{_returnMessage,mode=OUT,jdbcType=VARCHAR})
+									}
+        </select>
+
+       <select id="updateAutoScheduleFlag" statementType="CALLABLE" resultType="java.lang.String">
+          {call p_qt_auto_schedule(#{_vo.wsCode,mode=IN,jdbcType=VARCHAR},
+						           #{_vo.operateType,mode=IN,jdbcType=VARCHAR},
+								   #{_vo.updateBy,mode=IN,jdbcType=VARCHAR},
+								   #{_returnMessage,mode=OUT,jdbcType=VARCHAR})
+									}
+        </select>
+
+</mapper>

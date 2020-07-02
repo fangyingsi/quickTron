@@ -10,6 +10,8 @@ import java.util.Date;
 @Data
 public class TableBaseVO implements Serializable {
     long serialVersionUID = 1L;
+
+    private Integer id;
     /**
      *备注信息
      */
