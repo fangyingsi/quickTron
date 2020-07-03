@@ -5,12 +5,12 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.quicktron.business.dao.IQueryBucketSlotDao">
-    <resultMap id="BaseResultMap" type="com.quicktron.business.entities.BucketTaskVO">
+    <resultMap id="BaseResultMap" type="com.quicktron.business.entities.ReportParamInVO">
         <id column="id" property="id" jdbcType="BIGINT"/>
         <result column="bucket_code" property="bucketCode" jdbcType="VARCHAR"/>
-        <result column="end_point" property="endPoint" jdbcType="VARCHAR"/>
         <result column="task_status" property="taskStatus" jdbcType="VARCHAR" />
         <result column="end_point" property="endPoint" jdbcType="VARCHAR" />
+        <result column="point_code" property="pointCode" jdbcType="VARCHAR" />
         <result column="create_by" property="createBy" jdbcType="VARCHAR" />
         <result column="slot_code" property="slotCode" jdbcType="VARCHAR" />
         <result column="lpn" property="lpn" jdbcType="VARCHAR" />
@@ -25,10 +25,11 @@
     </select>
 
     <select id="queryUser" resultType="com.quicktron.business.entities.UserVO">
-        select id as "id",
+        select id as "userId",
                user_code as "userCode",
                user_name as "userName",
-               password as "passWord"
+               password as "passWord",
+               #{_vo.wsCode,jdbcType=VARCHAR} as "wsCode"
          from qt_user b
         where b.user_code =  #{_vo.userCode,jdbcType=VARCHAR}
           and b.password =  #{_vo.passWord,jdbcType=VARCHAR}
@@ -46,24 +47,22 @@
         <if test="_vo.lpn != null  and _vo.lpn !=''" >
             and s.lpn = #{_vo.lpn,jdbcType=VARCHAR}
         </if>
-        <if test="_vo.taskStatus != null and _vo.taskStatus !=''" >
-            and t.task_status = #{_vo.taskStatus,jdbcType=VARCHAR}
+        <if test="_vo.bucketStatus != null and _vo.bucketStatus !=''" >
+            and b.bucket_status = #{_vo.bucketStatus,jdbcType=VARCHAR}
         </if>
     </sql>
 
     <select id="queryLpnData" resultMap="BaseResultMap">
         select b.bucket_code,
-               b.bucket_status,
+               if(b.bucket_status='1', '启用', '停用' ) bucket_status,
+               -- b.bucket_status,
                b.point_code,
-               t.end_point,
                s.slot_code,
                s.lpn,
                s.create_time
          from qt_bucket b,
-              qt_slot s,
-              qt_bucket_task t
+              qt_slot s
         where b.bucket_code = s.bucket_code
-          and b.bucket_code = t.bucket_code
         <include refid="lpnDataCondition" />
         limit #{_curPage,jdbcType=INTEGER} ,#{_pageSize,jdbcType=INTEGER}
     </select>
@@ -71,26 +70,27 @@
     <select id="queryLpnDataCnt" resultType="java.lang.Integer">
         select count(1)
         from qt_bucket b,
-             qt_slot s,
-             qt_bucket_task t
+             qt_slot s
         where b.bucket_code = s.bucket_code
-          and b.bucket_code = t.bucket_code
         <include refid="lpnDataCondition" />
     </select>
 
     <!--出入库查询-->
     <sql id="invInOutCondition">
         <if test="_vo.operateType != null and _vo.operateType !=''" >
-            and t.logType = #{_vo.operateType,jdbcType=VARCHAR}
+            and t.log_Type = #{_vo.operateType,jdbcType=VARCHAR}
         </if>
         <if test="_vo.slotCode != null and _vo.slotCode !=''" >
-            and t.logKey = #{_vo.slotCode,jdbcType=VARCHAR}
+            and t.log_Key = #{_vo.slotCode,jdbcType=VARCHAR}
         </if>
         <if test="_vo.lpn != null and _vo.lpn !=''" >
             and t.attribute1 = #{_vo.lpn,jdbcType=VARCHAR}
         </if>
-        <if test="_vo.createTime != null and _vo.createTime !=''" >
-            and t.createTime = #{_vo.createTime,jdbcType=TIMESTAMP}
+        <if test="_vo.createTime != null" >
+            and t.create_time >= #{_vo.createTime,jdbcType=TIMESTAMP}
+        </if>
+        <if test="_vo.endTime != null" >
+            and t.create_time <![CDATA[ <= ]]> #{_vo.endTime,jdbcType=TIMESTAMP}
         </if>
     </sql>
 
@@ -135,8 +135,11 @@
             and t.end_point = #{_vo.endPoint,jdbcType=VARCHAR}
         </if>
 
-        <if test="_vo.createTime != null and _vo.createTime !=''" >
-            and t.createTime = #{_vo.createTime,jdbcType=TIMESTAMP}
+        <if test="_vo.createTime != null" >
+            and t.create_time >= #{_vo.createTime,jdbcType=TIMESTAMP}
+        </if>
+        <if test="_vo.endTime != null" >
+            and t.create_time <![CDATA[ <= ]]> #{_vo.endTime,jdbcType=TIMESTAMP}
         </if>
 	</sql>
 
@@ -179,8 +182,11 @@
             and t.end_point = #{_vo.endPoint,jdbcType=VARCHAR}
         </if>
 
-        <if test="_vo.createTime != null and _vo.createTime !=''" >
-            and p.createTime = #{_vo.createTime,jdbcType=TIMESTAMP}
+        <if test="_vo.createTime != null" >
+            and p.create_time >= #{_vo.createTime,jdbcType=TIMESTAMP}
+        </if>
+        <if test="_vo.endTime != null" >
+            and p.create_time <![CDATA[ <= ]]> #{_vo.endTime,jdbcType=TIMESTAMP}
         </if>
     </sql>
 

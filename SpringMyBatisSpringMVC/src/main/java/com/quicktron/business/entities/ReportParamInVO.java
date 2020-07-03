@@ -41,4 +41,6 @@ public class ReportParamInVO extends TableBaseVO{
      */
     private String operateType;
 
+    private String returnMessage;
+
 }

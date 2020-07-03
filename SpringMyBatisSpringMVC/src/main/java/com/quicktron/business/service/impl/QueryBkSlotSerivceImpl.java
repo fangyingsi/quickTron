@@ -2,6 +2,7 @@ package com.quicktron.business.service.impl;
 
 import com.quicktron.business.dao.IQueryBucketSlotDao;
 import com.quicktron.business.entities.BucketTaskVO;
+import com.quicktron.business.entities.OperateLogVO;
 import com.quicktron.business.entities.ReportParamInVO;
 import com.quicktron.business.entities.UserVO;
 import com.quicktron.business.service.IQueryBkSlotSerivce;
@@ -41,7 +42,7 @@ public class QueryBkSlotSerivceImpl implements IQueryBkSlotSerivce {
 
             UserVO loginedUser = queryBucketSlotDao.queryUser(paramInVO);
             if(loginedUser == null){
-                throw new QuicktronException("the user code or password is invalid.");
+                throw new QuicktronException("账号或密码无效.");
             }
 
             Map<String, Object> dataMap = new HashMap<String, Object>();
@@ -69,7 +70,7 @@ public class QueryBkSlotSerivceImpl implements IQueryBkSlotSerivce {
     /*
     出入库查询
     **/
-    public List<BucketTaskVO> queryInvInOut(ReportParamInVO paramInVO, PageInfo<BucketTaskVO> pageInfo){
+    public List<OperateLogVO> queryInvInOut(ReportParamInVO paramInVO, PageInfo<BucketTaskVO> pageInfo){
         int pageNo = (pageInfo.getCurrentPage()-1)*pageInfo.getPageSize();
 
         pageInfo.setTotalRecords(queryBucketSlotDao.queryInvInOutCnt(paramInVO));

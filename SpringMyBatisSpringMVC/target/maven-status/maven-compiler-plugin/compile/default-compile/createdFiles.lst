@@ -1,10 +1,16 @@
 com\quicktron\business\dao\IQueryBucketSlotDao.class
+com\quicktron\business\service\impl\BusinessActionServiceImpl.class
+com\quicktron\business\dao\IBusinessActionDao.class
 com\quicktron\business\service\IQueryBkSlotSerivce.class
+com\quicktron\business\entities\UserVO.class
 com\quicktron\business\service\impl\QueryBkSlotSerivceImpl.class
 com\quicktron\business\controller\PdaBusinessController.class
+com\quicktron\business\controller\PcBusinessController.class
 com\quicktron\business\entities\OperateLogVO.class
+com\quicktron\business\service\IBusinessActionService.class
 com\quicktron\business\controller\PcQyBuckSlotController.class
 com\quicktron\business\entities\BucketTaskVO.class
+com\quicktron\common\utils\QuicktronException.class
 com\quicktron\business\entities\TableBaseVO.class
 com\quicktron\business\entities\ReportParamInVO.class
 com\quicktron\common\utils\PageInfo.class

@@ -25,7 +25,14 @@ public class TableBaseVO implements Serializable {
      */
     @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private Date createTime = new Date();
+    private Date createTime;
+
+    /**
+     *查询条件结束时间
+     */
+    @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private Date endTime;
     /**
      *最后更新人账户id
      */

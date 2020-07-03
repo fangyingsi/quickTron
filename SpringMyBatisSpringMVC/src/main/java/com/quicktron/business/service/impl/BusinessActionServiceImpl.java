@@ -26,14 +26,14 @@ public class BusinessActionServiceImpl implements IBusinessActionService {
         responseMap.put("returnMessage", "ok");
         try {
             String returnMessage = "";
-            businessActionDao.updateLpnSlotRelat(inputVo, returnMessage);
+            businessActionDao.updateLpnSlotRelat(inputVo);
             //操作完成，过程返回success
-            if ("success".equals(returnMessage)) {
+            if ("success".equals(inputVo.getReturnMessage())) {
                 return responseMap;
             }else {
                 //过程返回不成功
                 responseMap.put("returnStatus", "fail");
-                responseMap.put("returnMessage", returnMessage);
+                responseMap.put("returnMessage", inputVo.getReturnMessage());
             }
         } catch (Exception e) {
             LOGGER.error("Internal error:"+e.getMessage());
@@ -53,14 +53,14 @@ public class BusinessActionServiceImpl implements IBusinessActionService {
 
         try {
             String returnMessage = "";
-            businessActionDao.refreshTask(inputVo, returnMessage);
+            businessActionDao.refreshTask(inputVo);
             //操作完成，过程返回success
-            if ("success".equals(returnMessage)) {
+            if ("success".equals(inputVo.getReturnMessage())) {
                 return responseMap;
             }else {
                 //过程返回不成功
                 responseMap.put("returnStatus", "fail");
-                responseMap.put("returnMessage", returnMessage);
+                responseMap.put("returnMessage", inputVo.getReturnMessage());
             }
         } catch (Exception e) {
             LOGGER.error("Internal error:"+e.getMessage());
@@ -109,14 +109,14 @@ public class BusinessActionServiceImpl implements IBusinessActionService {
 
         try {
             String returnMessage = "";
-            businessActionDao.releaseBucket(inputVo,returnMessage);
+            businessActionDao.releaseBucket(inputVo);
             //操作完成，过程返回success
-            if ("success".equals(returnMessage)) {
+            if ("success".equals(inputVo.getReturnMessage())) {
                 return responseMap;
             }else {
                 //过程返回不成功
                 responseMap.put("returnStatus", "fail");
-                responseMap.put("returnMessage", returnMessage);
+                responseMap.put("returnMessage", inputVo.getReturnMessage());
             }
         } catch (Exception e) {
             LOGGER.error("Internal error:"+e.getMessage());
@@ -137,14 +137,14 @@ public class BusinessActionServiceImpl implements IBusinessActionService {
 
         try {
             String returnMessage = "";
-            businessActionDao.updateAutoScheduleFlag(inputVo,returnMessage);
+            businessActionDao.updateAutoScheduleFlag(inputVo);
             //操作完成，过程返回success
-            if ("success".equals(returnMessage)) {
+            if ("success".equals(inputVo.getReturnMessage())) {
                 return responseMap;
             }else {
                 //过程返回不成功
                 responseMap.put("returnStatus", "fail");
-                responseMap.put("returnMessage", returnMessage);
+                responseMap.put("returnMessage", inputVo.getReturnMessage());
             }
         } catch (Exception e) {
             LOGGER.error("Internal error:"+e.getMessage());

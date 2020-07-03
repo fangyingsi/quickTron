@@ -1,6 +1,7 @@
 package com.quicktron.business.dao;
 
 import com.quicktron.business.entities.BucketTaskVO;
+import com.quicktron.business.entities.OperateLogVO;
 import com.quicktron.business.entities.ReportParamInVO;
 import com.quicktron.business.entities.UserVO;
 import org.apache.ibatis.annotations.Param;
@@ -24,7 +25,7 @@ public interface IQueryBucketSlotDao {
 
     /*出入库查询
      * */
-    List<BucketTaskVO> queryInvInOut(@Param("_vo")ReportParamInVO paramInVO, @Param("_curPage") int curPage, @Param("_pageSize") int pageSize);
+    List<OperateLogVO> queryInvInOut(@Param("_vo")ReportParamInVO paramInVO, @Param("_curPage") int curPage, @Param("_pageSize") int pageSize);
     int queryInvInOutCnt(@Param("_vo")ReportParamInVO paramInVO);
 
     /*查询搬运任务

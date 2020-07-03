@@ -28,11 +28,11 @@ public class PcBusinessController {
         //返回值
         Map<String, Object> responseMap = new HashMap<String, Object>();
         try {
-            //获取入参到VO中,要传入lpn/slotcode/操作人
+            //获取入参到VO中,要传入lpn/slotcode/操作类型/操作人
             ReportParamInVO paramInVO = new ReportParamInVO();
             paramInVO.setLpn(map.get("lpn"));
             paramInVO.setSlotCode(map.get("slotCode"));
-            paramInVO.setCreateBy(map.get("createBy"));
+            paramInVO.setUpdateBy(map.get("createBy"));
             paramInVO.setOperateType("DOWN");
             return businessActionService.updateLpnSlotRelate(paramInVO);
         }catch(Exception e){
@@ -55,7 +55,7 @@ public class PcBusinessController {
             ReportParamInVO paramInVO = new ReportParamInVO();
             paramInVO.setLpn(map.get("lpn"));
             paramInVO.setSlotCode(map.get("slotCode"));
-            paramInVO.setCreateBy(map.get("createBy"));
+            paramInVO.setUpdateBy(map.get("createBy"));
             paramInVO.setOperateType("UP");
             return businessActionService.updateLpnSlotRelate(paramInVO);
         }catch(Exception e){

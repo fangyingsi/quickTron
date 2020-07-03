@@ -9,14 +9,16 @@ public interface IBusinessActionDao {
 
     /*上下架LPN
     * */
-    void updateLpnSlotRelat(@Param("_vo")ReportParamInVO inputVo,@Param("_returnMessage")String returnMessage);
+//    void updateLpnSlotRelat(@Param("_vo")ReportParamInVO inputVo,@Param("_returnMessage")String returnMessage);
 
-    void refreshTask(@Param("_vo")ReportParamInVO inputVo,@Param("_returnMessage")String returnMessage);
+    void updateLpnSlotRelat(@Param("_vo")ReportParamInVO inputVo);
+
+    void refreshTask(@Param("_vo")ReportParamInVO inputVo);
 
     int queryActivePickTask(@Param("_slotCode") String slotCode);
 
-    void releaseBucket(@Param("_vo")ReportParamInVO inputVo,@Param("_returnMessage")String returnMessage);
+    void releaseBucket(@Param("_vo")ReportParamInVO inputVo);
 
-    void updateAutoScheduleFlag(@Param("_vo")ReportParamInVO inputVo,@Param("_returnMessage")String returnMessage);
+    void updateAutoScheduleFlag(@Param("_vo")ReportParamInVO inputVo);
 
 }

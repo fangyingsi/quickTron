@@ -1,6 +1,7 @@
 package com.quicktron.business.controller;
 
 import com.quicktron.business.entities.BucketTaskVO;
+import com.quicktron.business.entities.OperateLogVO;
 import com.quicktron.business.entities.ReportParamInVO;
 import com.quicktron.business.entities.UserVO;
 import com.quicktron.business.service.IQueryBkSlotSerivce;
@@ -9,10 +10,12 @@ import com.quicktron.common.utils.PageInfo;
 import com.quicktron.common.utils.QuicktronException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
+import org.springframework.jdbc.datasource.SimpleDriverDataSource;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -62,11 +65,11 @@ public class PcQyBuckSlotController {
         //返回值
         Map<String, Object> responseMap = new HashMap<String, Object>();
         try {
-            //获取入参到VO中
+            //获取入参到VO中 传 货架/货位/货架状态/LPn
             ReportParamInVO paramInVO = new ReportParamInVO();
             paramInVO.setBucketCode(map.get("bucketCode"));
             paramInVO.setSlotCode(map.get("slotCode"));
-            paramInVO.setTaskStatus(map.get("taskStatus"));
+            paramInVO.setBucketStatus(map.get("bucketStatus"));
             paramInVO.setLpn(map.get("lpn"));
             //分页
             PageInfo<BucketTaskVO> pageInfo = new PageInfo<BucketTaskVO>();
@@ -75,9 +78,9 @@ public class PcQyBuckSlotController {
 
             Map<String, Object> dataMap = new HashMap<String, Object>();
             List<BucketTaskVO> buckList = queryBkSlotSerivce.queryLpnData(paramInVO, pageInfo);
-            if(CollectionUtils.isEmpty(buckList)){
-                throw new QuicktronException("cann not find any data.");
-            }
+//            if(CollectionUtils.isEmpty(buckList)){
+//                throw new QuicktronException("cann not find any data.");
+//            }
             dataMap.put("rows", buckList);
             dataMap.put("total", pageInfo.getTotalRecords());
             //拼接返回值
@@ -104,22 +107,27 @@ public class PcQyBuckSlotController {
         //返回值
         Map<String, Object> responseMap = new HashMap<String, Object>();
         try {
-            //获取入参到VO中
+            //获取入参到VO中 货位/操作类型/lpn/创建时间的起止
             ReportParamInVO paramInVO = new ReportParamInVO();
             paramInVO.setSlotCode(map.get("slotCode"));
             paramInVO.setOperateType(map.get("operateType"));
             paramInVO.setLpn(map.get("lpn"));
-            paramInVO.setCreateTime(new Date(map.get("createTime")));
+            if(!StringUtils.isEmpty(map.get("createTime"))&&!StringUtils.isEmpty(map.get("endTime"))){
+                SimpleDateFormat sdf=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                paramInVO.setCreateTime(sdf.parse(map.get("createTime")));
+                paramInVO.setEndTime(sdf.parse(map.get("endTime")));
+            }
+
             //分页
             PageInfo<BucketTaskVO> pageInfo = new PageInfo<BucketTaskVO>();
             pageInfo.setCurrentPage(curPage);
             pageInfo.setPageSize(pageSize);
 
             Map<String, Object> dataMap = new HashMap<String, Object>();
-            List<BucketTaskVO> buckList = queryBkSlotSerivce.queryInvInOut(paramInVO, pageInfo);
-            if(CollectionUtils.isEmpty(buckList)){
-                throw new QuicktronException("cann not find any data.");
-            }
+            List<OperateLogVO> buckList = queryBkSlotSerivce.queryInvInOut(paramInVO, pageInfo);
+//            if(CollectionUtils.isEmpty(buckList)){
+//                throw new QuicktronException("cann not find any data.");
+//            }
             dataMap.put("rows", buckList);
             dataMap.put("total", pageInfo.getTotalRecords());
             //拼接返回值
@@ -152,7 +160,12 @@ public class PcQyBuckSlotController {
             paramInVO.setBucketCode(map.get("bucketCode"));
             paramInVO.setTaskStatus(map.get("taskStatus"));
             paramInVO.setPointCode(map.get("pointCode"));
-            paramInVO.setCreateTime(new Date(map.get("createTime")));
+            paramInVO.setEndPoint(map.get("endPoint"));
+            if(!StringUtils.isEmpty(map.get("createTime"))&&!StringUtils.isEmpty(map.get("endTime"))){
+                SimpleDateFormat sdf=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                paramInVO.setCreateTime(sdf.parse(map.get("createTime")));
+                paramInVO.setEndTime(sdf.parse(map.get("endTime")));
+            }
             //分页
             PageInfo<BucketTaskVO> pageInfo = new PageInfo<BucketTaskVO>();
             pageInfo.setCurrentPage(curPage);
@@ -160,9 +173,9 @@ public class PcQyBuckSlotController {
 
             Map<String, Object> dataMap = new HashMap<String, Object>();
             List<BucketTaskVO> buckList = queryBkSlotSerivce.queryBucketTask(paramInVO, pageInfo);
-            if(CollectionUtils.isEmpty(buckList)){
-                throw new QuicktronException("cann not find any data.");
-            }
+//            if(CollectionUtils.isEmpty(buckList)){
+//                throw new QuicktronException("cann not find any data.");
+//            }
             dataMap.put("rows", buckList);
             dataMap.put("total", pageInfo.getTotalRecords());
             //拼接返回值
@@ -193,7 +206,12 @@ public class PcQyBuckSlotController {
             paramInVO.setBucketCode(map.get("bucketCode"));
             paramInVO.setTaskStatus(map.get("taskStatus"));
             paramInVO.setPointCode(map.get("pointCode"));
-            paramInVO.setCreateTime(new Date(map.get("createTime")));
+            paramInVO.setEndPoint(map.get("endPoint"));
+            if(!StringUtils.isEmpty(map.get("createTime"))&&!StringUtils.isEmpty(map.get("endTime"))){
+                SimpleDateFormat sdf=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                paramInVO.setCreateTime(sdf.parse(map.get("createTime")));
+                paramInVO.setEndTime(sdf.parse(map.get("endTime")));
+            }
 
             PageInfo<BucketTaskVO> pageInfo = new PageInfo<BucketTaskVO>();
             pageInfo.setCurrentPage(curPage);
@@ -201,9 +219,9 @@ public class PcQyBuckSlotController {
 
             Map<String, Object> dataMap = new HashMap<String, Object>();
             List<BucketTaskVO> pickList = queryBkSlotSerivce.queryPickTask(paramInVO, pageInfo);
-            if(CollectionUtils.isEmpty(pickList)){
-                throw new QuicktronException("cann not find any data.");
-            }
+//            if(CollectionUtils.isEmpty(pickList)){
+//                throw new QuicktronException("cann not find any data.");
+//            }
             dataMap.put("rows", pickList);
             dataMap.put("total", pageInfo.getTotalRecords());
             //拼接返回值
