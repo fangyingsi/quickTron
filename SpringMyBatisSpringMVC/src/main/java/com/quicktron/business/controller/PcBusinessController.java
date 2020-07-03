@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @RestController
+@RequestMapping("/pcservice")
 public class PcBusinessController {
 
     private static final Logger LOGGER = Logger.getLogger(QueryBkSlotSerivceImpl.class);

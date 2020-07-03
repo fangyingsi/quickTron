@@ -48,4 +48,9 @@ public interface IQueryBucketSlotDao {
     /*查询货架是否有活动任务
      * * */
     int insertPickTask(@Param("_lpnList") List<ReportParamInVO> inputLpnList);
+
+    /*根据LPN或货位查询所属货架上货位情况
+    * */
+    List<String> queryBucketDataByLpn(@Param("_vo")ReportParamInVO paramInVO, @Param("_curPage") int curPage, @Param("_pageSize") int pageSize);
+    int queryBucketDataByLpnCnt(@Param("_vo")ReportParamInVO paramInVO);
 }

@@ -25,4 +25,6 @@ public interface IQueryBkSlotSerivce {
     List<BucketTaskVO> queryPickTask(ReportParamInVO paramInVO, PageInfo<BucketTaskVO> pageInfo);
 
     Map<String, Object> batchPickLpn(List<ReportParamInVO> slotLpnList);
+
+    List<String> queryBucketData(ReportParamInVO paramInVO, PageInfo<BucketTaskVO> pageInfo);
 }

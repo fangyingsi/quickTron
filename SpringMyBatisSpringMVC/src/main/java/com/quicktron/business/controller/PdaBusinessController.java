@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @RestController
+@RequestMapping("/pdaservice")
 public class PdaBusinessController {
 
     private static final Logger LOGGER = Logger.getLogger(QueryBkSlotSerivceImpl.class);

@@ -124,10 +124,16 @@ public class QueryBkSlotSerivceImpl implements IQueryBkSlotSerivce {
             responseMap.put("returnStatus","fail");
             responseMap.put("returnMessage",e.getMessage());
         }
-
         //放入pick task表
         queryBucketSlotDao.insertPickTask(slotLpnList);
 
         return responseMap;
+    }
+
+    public List<String> queryBucketData(ReportParamInVO paramInVO, PageInfo<BucketTaskVO> pageInfo){
+        int pageNo = (pageInfo.getCurrentPage()-1)*pageInfo.getPageSize();
+
+        pageInfo.setTotalRecords(queryBucketSlotDao.queryBucketDataByLpnCnt(paramInVO));
+        return queryBucketSlotDao.queryBucketDataByLpn(paramInVO,pageNo,pageInfo.getPageSize());
     }
 }

@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
+@RequestMapping("/pcquery")
 public class PcQyBuckSlotController {
     private static final Logger LOGGER = Logger.getLogger(QueryBkSlotSerivceImpl.class);
 
@@ -252,6 +253,42 @@ public class PcQyBuckSlotController {
            responseMap.put("returnMessage",e.getMessage());
            return responseMap;
        }
-
     }
+
+    /*根据货位或LPN查询所属货架上货位信息
+     * */
+    @ResponseBody
+    @RequestMapping(value = "/queryBucketByLpnSlot",method= RequestMethod.POST)
+    public Map<String, Object> queryBucketByLpnSlot(@RequestBody Map<String,String> map){
+        //返回值
+        Map<String, Object> responseMap = new HashMap<String, Object>();
+        try {
+            ReportParamInVO paramInVO = new ReportParamInVO();
+            paramInVO.setSlotCode(map.get("slotCode"));
+            paramInVO.setLpn(map.get("lpn"));
+
+            PageInfo<BucketTaskVO> pageInfo = new PageInfo<BucketTaskVO>();
+            pageInfo.setCurrentPage(1); //一个货架只有6个货位
+            pageInfo.setPageSize(15);   //一个货架只有6个货位
+
+            Map<String, Object> dataMap = new HashMap<String, Object>();
+            List<String> lpnList = queryBkSlotSerivce.queryBucketData(paramInVO, pageInfo);
+//            if(CollectionUtils.isEmpty(pickList)){
+//                throw new QuicktronException("cann not find any data.");
+//            }
+            dataMap.put("rows", lpnList);
+            dataMap.put("total", pageInfo.getTotalRecords());
+            //拼接返回值
+            responseMap.put("data",dataMap);
+            responseMap.put("returnStatus","success");
+            responseMap.put("returnMessage","ok");
+        }catch(Exception e){
+            LOGGER.error("Internal error:"+e.getMessage());
+            responseMap.put("returnStatus","fail");
+            responseMap.put("returnMessage","Internal error");
+        }
+        return responseMap;
+    }
+
+
 }

@@ -252,4 +252,31 @@
              sysdate())
         </foreach>
     </insert>
+
+    <!--根据货位、lpn查询货架上情况-->
+    <sql id="queryBucketDataCondition">
+        <if test="_vo.slotCode != null and _vo.slotCode !=''" >
+            and a.slot_code = #{_vo.slotCode,jdbcType=VARCHAR}
+        </if>
+        <if test="_vo.lpn != null and _vo.lpn !=''" >
+            and a.lpn = #{_vo.lpn,jdbcType=VARCHAR}
+        </if>
+    </sql>
+
+    <select id="queryBucketDataByLpn" resultType="java.lang.String">
+        SELECT b.lpn
+          FROM qt_slot a,qt_slot b
+         WHERE	1 = 1
+          AND a.bucket_code = b.bucket_code
+        <include refid="queryBucketDataCondition" />
+    </select>
+
+    <select id="queryBucketDataByLpnCnt" resultType="java.lang.Integer">
+        SELECT count(1)
+         FROM qt_slot a,qt_slot b
+        WHERE	1 = 1
+         AND a.bucket_code = b.bucket_code
+        <include refid="queryBucketDataCondition" />
+    </select>
+
 </mapper>
