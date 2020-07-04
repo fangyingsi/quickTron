@@ -1,10 +1,7 @@
 package com.quicktron.business.service.impl;
 
 import com.quicktron.business.dao.IQueryBucketSlotDao;
-import com.quicktron.business.entities.BucketTaskVO;
-import com.quicktron.business.entities.OperateLogVO;
-import com.quicktron.business.entities.ReportParamInVO;
-import com.quicktron.business.entities.UserVO;
+import com.quicktron.business.entities.*;
 import com.quicktron.business.service.IQueryBkSlotSerivce;
 import com.quicktron.common.utils.PageInfo;
 import com.quicktron.common.utils.QuicktronException;
@@ -34,11 +31,11 @@ public class QueryBkSlotSerivceImpl implements IQueryBkSlotSerivce {
         responseMap.put("returnMessage","ok");
 
         try{
-            //确认工作站是否有效
-            int wsCnt =queryBucketSlotDao.queryStationCnt(paramInVO.getWsCode());
-            if(wsCnt==0){
-                throw new QuicktronException("the station code is invalid.");
-            }
+//            //确认工作站是否有效
+//            int wsCnt =queryBucketSlotDao.queryStationCnt(paramInVO.getWsCode());
+//            if(wsCnt==0){
+//                throw new QuicktronException("the station code is invalid.");
+//            }
 
             UserVO loginedUser = queryBucketSlotDao.queryUser(paramInVO);
             if(loginedUser == null){
@@ -98,7 +95,7 @@ public class QueryBkSlotSerivceImpl implements IQueryBkSlotSerivce {
     }
 
     /*
-    下发拣货任务,勾选、导入
+    下发拣货任务,pda单挑呼叫、勾选、导入
     **/
     public Map<String, Object> batchPickLpn(List<ReportParamInVO> slotLpnList){
         Map<String, Object> responseMap = new HashMap<String, Object>();
@@ -135,5 +132,111 @@ public class QueryBkSlotSerivceImpl implements IQueryBkSlotSerivce {
 
         pageInfo.setTotalRecords(queryBucketSlotDao.queryBucketDataByLpnCnt(paramInVO));
         return queryBucketSlotDao.queryBucketDataByLpn(paramInVO,pageNo,pageInfo.getPageSize());
+    }
+
+    /*
+    查询工作站列表
+    **/
+    public Map<String, Object> queryStation(ReportParamInVO paramInVO){
+        Map<String, Object> responseMap = new HashMap<String, Object>();
+        responseMap.put("returnStatus","success");
+        responseMap.put("returnMessage","ok");
+
+        try{
+            List<WorkStationVO> stationVOList =queryBucketSlotDao.queryStation(paramInVO.getWsCode());
+            Map<String, Object> dataMap = new HashMap<String, Object>();
+            dataMap.put("rows", stationVOList);
+            dataMap.put("total", 1); //PDA端不需要分页，写死没关系
+            responseMap.put("data",dataMap);
+        }catch(Exception e){
+            responseMap.put("returnStatus","fail");
+            responseMap.put("returnMessage",e.getMessage());
+        }
+
+        return responseMap;
+    }
+
+    /*
+    查询工作站的点位列表
+    **/
+    public Map<String, Object> queryStationDtl(ReportParamInVO paramInVO){
+        Map<String, Object> responseMap = new HashMap<String, Object>();
+        responseMap.put("returnStatus","success");
+        responseMap.put("returnMessage","ok");
+
+        try{
+            List<WorkStationDtlVO> stationDtlList =queryBucketSlotDao.queryStationDtl(paramInVO.getWsCode());
+            Map<String, Object> dataMap = new HashMap<String, Object>();
+            dataMap.put("rows", stationDtlList);
+            dataMap.put("total", 1);//PDA端不需要分页，写死没关系
+            responseMap.put("data",dataMap);
+        }catch(Exception e){
+            responseMap.put("returnStatus","fail");
+            responseMap.put("returnMessage",e.getMessage());
+        }
+        return responseMap;
+    }
+
+    /*
+    查询工作站的点位列表
+    **/
+    public Map<String, Object> queryStatus(LookupValueVO paramInVO){
+        Map<String, Object> responseMap = new HashMap<String, Object>();
+        responseMap.put("returnStatus","success");
+        responseMap.put("returnMessage","ok");
+
+        try{
+            List<LookupValueVO> statusList =queryBucketSlotDao.queryLookup(paramInVO.getLookupType());
+            Map<String, Object> dataMap = new HashMap<String, Object>();
+            dataMap.put("rows", statusList);
+            dataMap.put("total", 1);// 下拉列表不需要分页，写死没关系
+            responseMap.put("data",dataMap);
+        }catch(Exception e){
+            responseMap.put("returnStatus","fail");
+            responseMap.put("returnMessage",e.getMessage());
+        }
+        return responseMap;
+    }
+
+    /*
+    查询货架编码LOV列表
+    **/
+    public Map<String, Object> queryBucketList(ReportParamInVO paramInVO){
+        Map<String, Object> responseMap = new HashMap<String, Object>();
+        responseMap.put("returnStatus","success");
+        responseMap.put("returnMessage","ok");
+
+        try{
+            List<BucketVO> bucketList =queryBucketSlotDao.queryBucket(paramInVO.getBucketCode());
+            Map<String, Object> dataMap = new HashMap<String, Object>();
+            dataMap.put("rows", bucketList);
+            dataMap.put("total", 1);//LOV下拉列表，不需要分页，写死没关系
+            responseMap.put("data",dataMap);
+        }catch(Exception e){
+            responseMap.put("returnStatus","fail");
+            responseMap.put("returnMessage",e.getMessage());
+        }
+        return responseMap;
+    }
+
+    /*
+    查询货架编码LOV列表
+    **/
+    public Map<String, Object> querySlotList(ReportParamInVO paramInVO){
+        Map<String, Object> responseMap = new HashMap<String, Object>();
+        responseMap.put("returnStatus","success");
+        responseMap.put("returnMessage","ok");
+
+        try{
+            List<SlotVO> slotList =queryBucketSlotDao.querySlot(paramInVO.getSlotCode(),paramInVO.getLpn());
+            Map<String, Object> dataMap = new HashMap<String, Object>();
+            dataMap.put("rows", slotList);
+            dataMap.put("total", 1);//LOV下拉列表，不需要分页，写死没关系
+            responseMap.put("data",dataMap);
+        }catch(Exception e){
+            responseMap.put("returnStatus","fail");
+            responseMap.put("returnMessage",e.getMessage());
+        }
+        return responseMap;
     }
 }

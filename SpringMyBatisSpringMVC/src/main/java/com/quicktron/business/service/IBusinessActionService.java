@@ -31,5 +31,9 @@ public interface IBusinessActionService {
      * */
     Map<String, Object> autoScheduleAction(ReportParamInVO inputVo);
 
+    /*根据LPN下发一条拣货任务
+     * */
+    Map<String, Object> callByLpn(ReportParamInVO inputVo);
+
 
 }

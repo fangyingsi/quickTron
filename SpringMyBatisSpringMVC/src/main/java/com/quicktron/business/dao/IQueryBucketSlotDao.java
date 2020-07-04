@@ -1,9 +1,6 @@
 package com.quicktron.business.dao;
 
-import com.quicktron.business.entities.BucketTaskVO;
-import com.quicktron.business.entities.OperateLogVO;
-import com.quicktron.business.entities.ReportParamInVO;
-import com.quicktron.business.entities.UserVO;
+import com.quicktron.business.entities.*;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -12,7 +9,23 @@ public interface IQueryBucketSlotDao {
 
     /*查询工作站
     * */
-    int queryStationCnt(@Param("_wsCode")String wsCode);
+    List<WorkStationVO> queryStation(@Param("_wsCode")String wsCode);
+
+    /*查询工作站的点位列表
+     * */
+    List<WorkStationDtlVO> queryStationDtl(@Param("_wsCode")String wsCode);
+
+    /*查询状态列表
+     * */
+    List<LookupValueVO> queryLookup(@Param("_lookupType")String lookupType);
+
+    /*查询货架编码LOV
+     * */
+    List<BucketVO> queryBucket(@Param("_bucket")String bucketCode);
+
+    /*查询货位编码LOV
+     * */
+    List<SlotVO> querySlot(@Param("_slot")String slotCode,@Param("_lpn")String lpn);
 
     /*查询login user
      * */

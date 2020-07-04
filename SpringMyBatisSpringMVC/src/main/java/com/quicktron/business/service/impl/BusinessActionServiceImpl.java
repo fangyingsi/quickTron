@@ -153,4 +153,32 @@ public class BusinessActionServiceImpl implements IBusinessActionService {
         }
         return responseMap;
     }
+
+    /*根据LPN下发一条拣货任务
+     * */
+    public Map<String, Object> callByLpn(ReportParamInVO inputVo){
+
+        //初始化返回值
+        Map<String, Object> responseMap = new HashMap<String, Object>();
+        responseMap.put("returnStatus", "success");
+        responseMap.put("returnMessage", "ok");
+
+        try {
+//            String returnMessage = "";
+            businessActionDao.submitPickTask(inputVo);
+            //操作完成，过程返回success
+            if ("success".equals(inputVo.getReturnMessage())) {
+                return responseMap;
+            }else {
+                //过程返回不成功
+                responseMap.put("returnStatus", "fail");
+                responseMap.put("returnMessage", inputVo.getReturnMessage());
+            }
+        } catch (Exception e) {
+            LOGGER.error("Internal error:"+e.getMessage());
+            responseMap.put("returnStatus", "fail");
+            responseMap.put("returnMessage", "Internal error:"+e.getMessage());
+        }
+        return responseMap;
+    }
 }

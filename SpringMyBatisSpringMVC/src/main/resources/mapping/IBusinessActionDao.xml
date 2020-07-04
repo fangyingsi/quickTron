@@ -68,7 +68,6 @@
        <select id="releaseBucket" statementType="CALLABLE" resultType="com.quicktron.business.entities.ReportParamInVO">
           {call p_qt_release_bucket(#{_vo.wsCode,mode=IN,jdbcType=VARCHAR},
                                     #{_vo.slotCode,mode=IN,jdbcType=VARCHAR},
-                                    #{_vo.endArea,mode=IN,jdbcType=VARCHAR},
 									#{_vo.createBy,mode=IN,jdbcType=INTEGER},
 									#{_vo.returnMessage,mode=OUT,jdbcType=VARCHAR})
 									}
@@ -80,6 +79,14 @@
 								   #{_vo.updateBy,mode=IN,jdbcType=VARCHAR},
 								   #{_vo.returnMessage,mode=OUT,jdbcType=VARCHAR})
 									}
+        </select>
+
+      <select id="submitPickTask" statementType="CALLABLE" resultType="com.quicktron.business.entities.ReportParamInVO">
+          {call p_qt_insert_pick_task(#{_vo.lpn,mode=IN,jdbcType=VARCHAR},
+                                      #{_vo.wsCode,mode=IN,jdbcType=VARCHAR},
+									  #{_vo.createBy,mode=IN,jdbcType=VARCHAR},
+									  #{_vo.returnMessage,mode=OUT,jdbcType=VARCHAR})
+									  }
         </select>
 
 </mapper>

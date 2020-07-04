@@ -15,6 +15,4 @@ public class UserVO implements Serializable {
 
     private String passWord;
 
-    private String wsCode;
-
 }

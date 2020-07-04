@@ -34,7 +34,7 @@ public class PcBusinessController {
             paramInVO.setLpn(map.get("lpn"));
             paramInVO.setSlotCode(map.get("slotCode"));
             paramInVO.setUpdateBy(map.get("createBy"));
-            paramInVO.setOperateType("DOWN");
+            paramInVO.setOperateType(map.get("OperateType"));
             return businessActionService.updateLpnSlotRelate(paramInVO);
         }catch(Exception e){
             LOGGER.error("Internal error:"+e.getMessage());
@@ -57,7 +57,7 @@ public class PcBusinessController {
             paramInVO.setLpn(map.get("lpn"));
             paramInVO.setSlotCode(map.get("slotCode"));
             paramInVO.setUpdateBy(map.get("createBy"));
-            paramInVO.setOperateType("UP");
+            paramInVO.setOperateType(map.get("OperateType"));
             return businessActionService.updateLpnSlotRelate(paramInVO);
         }catch(Exception e){
             LOGGER.error("Internal error:"+e.getMessage());
@@ -122,7 +122,7 @@ public class PcBusinessController {
             ReportParamInVO paramInVO = new ReportParamInVO();
             paramInVO.setWsCode(map.get("wsCode"));
             paramInVO.setSlotCode(map.get("slotCode"));
-            paramInVO.setEndArea(map.get("endArea"));
+//            paramInVO.setEndArea(map.get("endArea"));
 //            paramInVO.setEndPoint(map.get("endPoint"));
             paramInVO.setCreateBy(map.get("createBy"));
             return businessActionService.releaseBucket(paramInVO);

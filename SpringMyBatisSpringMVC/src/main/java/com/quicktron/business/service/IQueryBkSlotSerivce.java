@@ -1,10 +1,7 @@
 package com.quicktron.business.service;
 
-import com.quicktron.business.entities.OperateLogVO;
-import com.quicktron.business.entities.UserVO;
+import com.quicktron.business.entities.*;
 import com.quicktron.common.utils.PageInfo;
-import com.quicktron.business.entities.BucketTaskVO;
-import com.quicktron.business.entities.ReportParamInVO;
 
 import java.util.List;
 import java.util.Map;
@@ -27,4 +24,14 @@ public interface IQueryBkSlotSerivce {
     Map<String, Object> batchPickLpn(List<ReportParamInVO> slotLpnList);
 
     List<String> queryBucketData(ReportParamInVO paramInVO, PageInfo<BucketTaskVO> pageInfo);
+
+    Map<String, Object> queryStation(ReportParamInVO paramInVO);
+
+    Map<String, Object> queryStationDtl(ReportParamInVO paramInVO);
+
+    Map<String, Object> queryStatus(LookupValueVO paramInVO);
+
+    Map<String, Object> queryBucketList(ReportParamInVO paramInVO);
+
+    Map<String, Object> querySlotList(ReportParamInVO paramInVO);
 }

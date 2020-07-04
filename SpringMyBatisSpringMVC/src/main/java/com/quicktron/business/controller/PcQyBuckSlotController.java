@@ -1,9 +1,6 @@
 package com.quicktron.business.controller;
 
-import com.quicktron.business.entities.BucketTaskVO;
-import com.quicktron.business.entities.OperateLogVO;
-import com.quicktron.business.entities.ReportParamInVO;
-import com.quicktron.business.entities.UserVO;
+import com.quicktron.business.entities.*;
 import com.quicktron.business.service.IQueryBkSlotSerivce;
 import com.quicktron.business.service.impl.QueryBkSlotSerivceImpl;
 import com.quicktron.common.utils.PageInfo;
@@ -42,7 +39,7 @@ public class PcQyBuckSlotController {
             UserVO paramInVO = new UserVO();
             paramInVO.setUserCode(map.get("userCode"));
             paramInVO.setPassWord(map.get("passWord"));
-            paramInVO.setWsCode(map.get("wsCode"));
+//            paramInVO.setWsCode(map.get("wsCode"));
 
             return queryBkSlotSerivce.login(paramInVO);
 
@@ -294,12 +291,98 @@ public class PcQyBuckSlotController {
      * */
     @ResponseBody
     @RequestMapping(value = "/queryStationList",method= RequestMethod.POST)
-    public Map<String, Object> queryStationList(){
+    public Map<String, Object> queryStationList(@RequestBody Map<String,String> map){
+        //返回值
+        Map<String, Object> responseMap = new HashMap<String, Object>();
+        try {
+            ReportParamInVO paramInVO = new ReportParamInVO();
+            paramInVO.setWsCode(map.get("wsCode"));
+            //获取入参到VO中,不需要参数
+            return queryBkSlotSerivce.queryStation(paramInVO);
+        }catch(Exception e){
+            LOGGER.error("Internal error:"+e.getMessage());
+            responseMap.put("returnStatus","fail");
+            responseMap.put("returnMessage","Internal error");
+        }
+        return responseMap;
+    }
+
+    /*查询工作站的点位列表
+     * */
+    @ResponseBody
+    @RequestMapping(value = "/queryStationDtlList",method= RequestMethod.POST)
+    public Map<String, Object> queryStationDtlList(@RequestBody Map<String,String> map){
+        //返回值
+        Map<String, Object> responseMap = new HashMap<String, Object>();
+        try {
+            ReportParamInVO paramInVO = new ReportParamInVO();
+            paramInVO.setWsCode(map.get("wsCode"));
+            //获取入参到VO中,不需要参数
+            return queryBkSlotSerivce.queryStationDtl(paramInVO);
+        }catch(Exception e){
+            LOGGER.error("Internal error:"+e.getMessage());
+            responseMap.put("returnStatus","fail");
+            responseMap.put("returnMessage","Internal error");
+        }
+        return responseMap;
+    }
+
+    /*查询状态列表给LOV
+     * */
+    @ResponseBody
+    @RequestMapping(value = "/queryStatusList",method= RequestMethod.POST)
+    public Map<String, Object> queryStatusList(@RequestBody Map<String,String> map){
         //返回值
         Map<String, Object> responseMap = new HashMap<String, Object>();
         try {
             //获取入参到VO中,不需要参数
-//            return queryBkSlotSerivce.queryStationList();
+            LookupValueVO paramInVO = new LookupValueVO();
+            paramInVO.setLookupType(map.get("statusType"));
+
+            return queryBkSlotSerivce.queryStatus(paramInVO);
+        }catch(Exception e){
+            LOGGER.error("Internal error:"+e.getMessage());
+            responseMap.put("returnStatus","fail");
+            responseMap.put("returnMessage","Internal error");
+        }
+        return responseMap;
+    }
+
+    /*报表查询界面货架编码列表
+     * */
+    @ResponseBody
+    @RequestMapping(value = "/queryBucketList",method= RequestMethod.POST)
+    public Map<String, Object> queryBucketList(@RequestBody Map<String,String> map){
+        //返回值
+        Map<String, Object> responseMap = new HashMap<String, Object>();
+        try {
+            //获取入参到VO中,不需要参数
+            ReportParamInVO paramInVO = new ReportParamInVO();
+            paramInVO.setBucketCode(map.get("bucketCode"));
+
+            return queryBkSlotSerivce.queryBucketList(paramInVO);
+        }catch(Exception e){
+            LOGGER.error("Internal error:"+e.getMessage());
+            responseMap.put("returnStatus","fail");
+            responseMap.put("returnMessage","Internal error");
+        }
+        return responseMap;
+    }
+
+    /*报表查询界面货位、LPN编码列表
+     * */
+    @ResponseBody
+    @RequestMapping(value = "/querySlotList",method= RequestMethod.POST)
+    public Map<String, Object> querySlotList(@RequestBody Map<String,String> map){
+        //返回值
+        Map<String, Object> responseMap = new HashMap<String, Object>();
+        try {
+            //获取入参到VO中,不需要参数
+            ReportParamInVO paramInVO = new ReportParamInVO();
+            paramInVO.setSlotCode(map.get("slotCode"));
+            paramInVO.setLpn(map.get("lpn"));
+
+            return queryBkSlotSerivce.querySlotList(paramInVO);
         }catch(Exception e){
             LOGGER.error("Internal error:"+e.getMessage());
             responseMap.put("returnStatus","fail");

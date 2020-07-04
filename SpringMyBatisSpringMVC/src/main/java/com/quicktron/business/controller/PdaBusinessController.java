@@ -41,4 +41,26 @@ public class PdaBusinessController {
         return responseMap;
     }
 
+    /*pda LPN呼叫，只生成一条拣货任务
+     * */
+    @ResponseBody
+    @RequestMapping(value = "/callByLpn",method= RequestMethod.POST)
+    public Map<String, Object> callByLpn(@RequestBody Map<String,String> map){
+        //返回值
+        Map<String, Object> responseMap = new HashMap<String, Object>();
+        try {
+            //获取入参到VO中,工作站/操作人/LPN
+            ReportParamInVO paramInVO = new ReportParamInVO();
+            paramInVO.setWsCode(map.get("wsCode"));
+            paramInVO.setCreateBy(map.get("createBy"));
+            paramInVO.setLpn(map.get("lpn"));
+            return businessActionService.callByLpn(paramInVO);
+        }catch(Exception e){
+            LOGGER.error("Internal error:"+e.getMessage());
+            responseMap.put("returnStatus","fail");
+            responseMap.put("returnMessage","Internal error");
+        }
+        return responseMap;
+    }
+
 }
