@@ -290,5 +290,22 @@ public class PcQyBuckSlotController {
         return responseMap;
     }
 
+    /*查询工作站列表，登录时选择
+     * */
+    @ResponseBody
+    @RequestMapping(value = "/queryStationList",method= RequestMethod.POST)
+    public Map<String, Object> queryStationList(){
+        //返回值
+        Map<String, Object> responseMap = new HashMap<String, Object>();
+        try {
+            //获取入参到VO中,不需要参数
+//            return queryBkSlotSerivce.queryStationList();
+        }catch(Exception e){
+            LOGGER.error("Internal error:"+e.getMessage());
+            responseMap.put("returnStatus","fail");
+            responseMap.put("returnMessage","Internal error");
+        }
+        return responseMap;
+    }
 
 }
