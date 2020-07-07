@@ -12,6 +12,9 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
@@ -31,15 +34,17 @@ public class PcQyBuckSlotController {
     **/
     @ResponseBody
     @RequestMapping(value = "/login",method=RequestMethod.POST)
-    public Map<String, Object> login(@RequestBody Map<String,String> map){
+    public Map<String, Object> login(@RequestBody Map<String,String> map, HttpServletRequest request, HttpServletResponse response){
         //返回值
         Map<String, Object> responseMap = new HashMap<String, Object>();
         try {
-            //获取入参到VO中,要传入usercode、password,wscode
+            //获取入参到VO中,要传入usercode、password
             UserVO paramInVO = new UserVO();
             paramInVO.setUserCode(map.get("userCode"));
             paramInVO.setPassWord(map.get("passWord"));
-//            paramInVO.setWsCode(map.get("wsCode"));
+//            //保存会话
+//            HttpSession session = request.getSession(false);
+//            session.setAttribute("SESSION_USERNAME", map.get("userCode"));
 
             return queryBkSlotSerivce.login(paramInVO);
 

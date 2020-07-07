@@ -1,5 +1,6 @@
 package com.quicktron.executor.service.jobhandler;
 
+import com.quicktron.business.service.IJobHanderService;
 import com.xxl.job.core.biz.model.ReturnT;
 import com.xxl.job.core.context.XxlJobContext;
 import com.xxl.job.core.handler.IJobHandler;
@@ -7,6 +8,7 @@ import com.xxl.job.core.handler.annotation.XxlJob;
 import com.xxl.job.core.log.XxlJobLogger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.BufferedInputStream;
@@ -32,6 +34,38 @@ import java.util.concurrent.TimeUnit;
 public class QuicktronXxlJob {
     private static Logger logger = LoggerFactory.getLogger(QuicktronXxlJob.class);
 
+    @Autowired
+    private IJobHanderService jobHanderService;
+
+    /**
+     * 开启自动调度，根据工作站的作业模式自动生成货架任务
+     */
+    @XxlJob("autoSchedule")
+    public ReturnT<String> autoSchedule() throws Exception {
+        XxlJobLogger.log("autoSchedule job.");
+        jobHanderService.autoSchedule();
+        return ReturnT.SUCCESS;
+    }
+
+    /**
+     * 循环获取货架任务表中INIT任务，调用RCS接口
+     */
+    @XxlJob("sendTaskToRcs")
+    public ReturnT<String> sendTaskToRcs() throws Exception {
+        XxlJobLogger.log("sendTaskToRcs job.");
+        jobHanderService.sendRcsTask();
+        return ReturnT.SUCCESS;
+    }
+
+    /**
+     * 调用RCS 货架信息查询接口，查询货架当前点位等
+     */
+    @XxlJob("synRcsBucketInfo")
+    public ReturnT<String> synRcsBucketInfo() throws Exception {
+        XxlJobLogger.log("queryRcsBucketInfo job.");
+        jobHanderService.queryRcsBucketInfo();
+        return ReturnT.SUCCESS;
+    }
 
     /**
      * 1、简单任务示例（Bean模式）
@@ -40,10 +74,8 @@ public class QuicktronXxlJob {
     public ReturnT<String> demoJobHandler(String param) throws Exception {
         XxlJobLogger.log("XXL-JOB, Hello World.");
 
-        for (int i = 0; i < 5; i++) {
-            XxlJobLogger.log("beat at:" + i);
-            TimeUnit.SECONDS.sleep(2);
-        }
+        jobHanderService.sendRcsTask();
+
         return ReturnT.SUCCESS;
     }
 

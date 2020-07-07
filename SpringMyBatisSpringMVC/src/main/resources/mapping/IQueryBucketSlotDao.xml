@@ -21,7 +21,7 @@
     <select id="queryStation" resultType="com.quicktron.business.entities.WorkStationVO">
         select ws_code as "wsCode",
                ws_name as "wsName",
-               job_mode as "jobMode",
+               upper(job_mode) as "jobMode",
                let_down_flag as "letDownFlag",
                max_task as "maxTask"
          from qt_station b
@@ -92,8 +92,7 @@
     <select id="queryUser" resultType="com.quicktron.business.entities.UserVO">
         select id as "userId",
                user_code as "userCode",
-               user_name as "userName",
-               password as "passWord"
+               user_name as "userName"
          from qt_user b
         where b.user_code =  #{_vo.userCode,jdbcType=VARCHAR}
           and b.password =  #{_vo.passWord,jdbcType=VARCHAR}

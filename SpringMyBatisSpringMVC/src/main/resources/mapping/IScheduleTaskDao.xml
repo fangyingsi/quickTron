@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.quicktron.business.dao.IScheduleTaskDao">
+
+	<select id="autoSchedule" statementType="CALLABLE" resultType="com.quicktron.business.entities.ReportParamInVO">
+          {call qt_pro_autoControl()
+			}
+    </select>
+
+	<!--com.quicktron.business.entities.RcsTaskVO-->
+    <select id="getInitBucketTask" resultType="com.quicktron.business.entities.RcsTaskVO">
+        SELECT
+	          t.id AS "robotJobId",
+	          t.bucket_code AS "bucketCode",
+	          t.start_point AS "startPoint",
+	          t.end_area AS "endArea",
+	          t.end_point AS "endPoint",
+	          t.let_down_flag AS "letDownFlag"
+         FROM qt_bucket b,
+	          qt_bucket_task t
+        WHERE b.bucket_code = t.bucket_code
+	      AND t.task_status = 0
+	      AND t.send_count > 0
+    </select>
+
+	<select id="updateBucket" statementType="CALLABLE" resultType="com.quicktron.business.entities.ReportParamInVO">
+          {call p_qt_update_bucket(#{_vo.bucketCode,mode=IN,jdbcType=VARCHAR},
+                                   #{_vo.pointCode,mode=IN,jdbcType=VARCHAR},
+								   #{_vo.returnMessage,mode=OUT,jdbcType=VARCHAR})
+			     }
+    </select>
+
+</mapper>

@@ -106,14 +106,14 @@ public class QueryBkSlotSerivceImpl implements IQueryBkSlotSerivce {
             for (ReportParamInVO paramInVO : slotLpnList) {
                 //传参中有没有货位，LPN为空的记录
                 if (StringUtils.isEmpty(paramInVO.getSlotCode()) || StringUtils.isEmpty(paramInVO.getLpn())) {
-                    throw new QuicktronException("the selected slot or lpn is null");
+                    throw new QuicktronException("货位或LPN为空.");
                 }
 
                 //货架有没有正在进行的任务
                 //如果是导入，一定要货架列到模板中
                 int activeTaskCnt = queryBucketSlotDao.queryActiveTaskByBuck(paramInVO.getBucketCode());
                 if(activeTaskCnt>0){
-                    throw new QuicktronException("there has been a active task of the bucket:"+paramInVO.getBucketCode());
+                    throw new QuicktronException("已存在该货架的活动任务:"+paramInVO.getBucketCode());
                 }
             }
         }catch (Exception e){
@@ -239,4 +239,5 @@ public class QueryBkSlotSerivceImpl implements IQueryBkSlotSerivce {
         }
         return responseMap;
     }
+
 }

@@ -286,12 +286,33 @@
             <version>2.2.1</version>
         </dependency-->
 
-        <!-- xxl-job-core -->
+         <!-- xxl-job-core -->
         <dependency>
             <groupId>com.xuxueli</groupId>
             <artifactId>xxl-job-core</artifactId>
             <version>${xxl.job.version}</version>
         </dependency>
+        <!-- web socket -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-websocket</artifactId>
+            <version>${spring.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-messaging</artifactId>
+            <version>${spring.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.jetty.websocket</groupId>
+            <artifactId>websocket-server</artifactId>
+            <version>9.3.15.v20161220</version>
+        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>org.apache.tomcat.embed</groupId>-->
+<!--            <artifactId>tomcat-embed-websocket</artifactId>-->
+<!--            <version>9.0.30</version>-->
+<!--        </dependency>-->
     </dependencies>
 
     <build>

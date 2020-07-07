@@ -35,5 +35,7 @@ public interface IBusinessActionService {
      * */
     Map<String, Object> callByLpn(ReportParamInVO inputVo);
 
-
+    /*根据bucketcode查询待拣货位
+     * */
+    Map<String, Object> queryWaitPickList(String bucketCode);
 }

@@ -1,7 +1,10 @@
 package com.quicktron.business.dao;
 
 import com.quicktron.business.entities.ReportParamInVO;
+import com.quicktron.business.entities.WaitForPickVO;
 import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
 
 public interface IBusinessActionDao {
 
@@ -10,6 +13,8 @@ public interface IBusinessActionDao {
     /*上下架LPN
     * */
 //    void updateLpnSlotRelat(@Param("_vo")ReportParamInVO inputVo,@Param("_returnMessage")String returnMessage);
+
+    List<WaitForPickVO> queryWaitPickLpn(@Param("_bucket")String  bucketCode);
 
     void updateLpnSlotRelat(@Param("_vo")ReportParamInVO inputVo);
     /*刷新任务状态

@@ -22,6 +22,10 @@
         </property>
     </bean>
 
+    <bean id="restTemplate" class="org.springframework.web.client.RestTemplate"/>
+    <!-- websocket-->
+    <context:component-scan base-package="com.quicktron.business.websocket" />
+
     <bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource"
           init-method="init" destroy-method="close">
         <!-- 指定连接数据库的驱动 -->

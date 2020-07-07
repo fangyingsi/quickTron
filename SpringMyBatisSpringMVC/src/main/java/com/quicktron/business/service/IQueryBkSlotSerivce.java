@@ -34,4 +34,5 @@ public interface IQueryBkSlotSerivce {
     Map<String, Object> queryBucketList(ReportParamInVO paramInVO);
 
     Map<String, Object> querySlotList(ReportParamInVO paramInVO);
+
 }

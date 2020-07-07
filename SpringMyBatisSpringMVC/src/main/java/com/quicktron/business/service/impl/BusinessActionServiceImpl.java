@@ -3,20 +3,27 @@ package com.quicktron.business.service.impl;
 import com.quicktron.business.dao.IBusinessActionDao;
 import com.quicktron.business.dao.IQueryBucketSlotDao;
 import com.quicktron.business.entities.ReportParamInVO;
+import com.quicktron.business.entities.WaitForPickVO;
 import com.quicktron.business.service.IBusinessActionService;
+import com.quicktron.business.websocket.QuickTWebSocketHandler;
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Service
 public class BusinessActionServiceImpl implements IBusinessActionService {
-    private static final Logger LOGGER = Logger.getLogger(QueryBkSlotSerivceImpl.class);
+    private static final Logger LOGGER = Logger.getLogger(BusinessActionServiceImpl.class);
 
     @Resource
     private IBusinessActionDao businessActionDao;
+
+    @Autowired
+    private QuickTWebSocketHandler quickTWebSocketHandler;
 
     /*上下架lpn
     * */
@@ -56,6 +63,13 @@ public class BusinessActionServiceImpl implements IBusinessActionService {
             businessActionDao.refreshTask(inputVo);
             //操作完成，过程返回success
             if ("success".equals(inputVo.getReturnMessage())) {
+                //如果状态是DONE，触发消息发给前端
+                responseMap = queryWaitPickList(inputVo.getBucketCode());
+                if("success".equals(responseMap.get("returnStatus"))){
+                    //根据目的点位在哪个工作站，判断谁登录pda绑定了这个工作站并开启自动调度，就弹出消息给谁
+                    //给前台发送消息
+                    quickTWebSocketHandler.sendMessageToUser(responseMap.get("wsCode").toString(), responseMap.toString());
+                }
                 return responseMap;
             }else {
                 //过程返回不成功
@@ -178,6 +192,30 @@ public class BusinessActionServiceImpl implements IBusinessActionService {
             LOGGER.error("Internal error:"+e.getMessage());
             responseMap.put("returnStatus", "fail");
             responseMap.put("returnMessage", "Internal error:"+e.getMessage());
+        }
+        return responseMap;
+    }
+
+
+    @Override
+    public Map<String, Object> queryWaitPickList(String bucketCode) {
+        Map<String, Object> responseMap = new HashMap<String, Object>();
+        responseMap.put("returnStatus","success");
+        responseMap.put("returnMessage","ok");
+
+        try{
+            List<WaitForPickVO> waitForPickVOList=businessActionDao.queryWaitPickLpn(bucketCode);
+            Map<String, Object> dataMap = new HashMap<String, Object>();
+            dataMap.put("rows", waitForPickVOList);
+            dataMap.put("total", 1);//不需要分页，写死没关系
+
+            //取记录中随意一条的 wsCode，即货架到达哪个工作站，找到登录该工作站的会话，发送消息
+            for(WaitForPickVO waitForPickVO : waitForPickVOList){
+                responseMap.put("wsCode",waitForPickVO.getWsCode());
+            }
+        }catch(Exception e){
+            responseMap.put("returnStatus","fail");
+            responseMap.put("returnMessage",e.getMessage());
         }
         return responseMap;
     }
