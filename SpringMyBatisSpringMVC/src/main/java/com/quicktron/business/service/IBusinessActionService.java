@@ -38,4 +38,7 @@ public interface IBusinessActionService {
     /*根据bucketcode查询待拣货位
      * */
     Map<String, Object> queryWaitPickList(String bucketCode);
+    /*根据工作站查询待拣货位
+     * */
+    Map<String, Object> queryWaitPickByStat(String wsCode);
 }

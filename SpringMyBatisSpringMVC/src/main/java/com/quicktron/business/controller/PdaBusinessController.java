@@ -2,6 +2,7 @@ package com.quicktron.business.controller;
 
 import com.quicktron.business.entities.ReportParamInVO;
 import com.quicktron.business.service.IBusinessActionService;
+import com.quicktron.business.service.IJobHanderService;
 import com.quicktron.business.service.impl.QueryBkSlotSerivceImpl;
 import com.quicktron.business.websocket.QuickTWebSocketHandler;
 import com.quicktron.common.utils.QuicktronException;
@@ -23,6 +24,9 @@ public class PdaBusinessController {
 
     @Autowired
     private IBusinessActionService businessActionService;
+
+    @Autowired
+    private IJobHanderService jobHanderService;
 
     /*pda操作工作站的自动调度开关
     * */
@@ -68,29 +72,48 @@ public class PdaBusinessController {
         return responseMap;
     }
 
-//    /*货架到站，弹出提示信息
-//     * */
-//    @ResponseBody
-//    @RequestMapping(value = "/bucketArriveHint",method= RequestMethod.POST)
-//    public Map<String, Object> bucketArriveHint(@RequestBody Map<String,String> map){
-//        Map<String, Object> responseMap = new HashMap<String, Object>();
-//        try {
-//            //货架到站后，传入bucketCode
-//            if(StringUtils.isEmpty(map.get("bucketCode"))){
-//                throw new QuicktronException("货架编码不能为空.");
-//            }
-//            responseMap =businessActionService.queryWaitPickList(map.get("bucketCode"));
-//            if("success".equals(responseMap.get("returnStatus"))){
-//                //根据目的点位在哪个工作站，判断谁登录pda绑定了这个工作站并开启自动调度，就弹出消息给谁
-//                //给前台发送消息
-//                quickTWebSocketHandler.sendMessageToUser(responseMap.get("wsCode").toString(), responseMap.toString());
-//            }
-//        }catch(Exception e){
-//            LOGGER.error("Internal error:"+e.getMessage());
-//            responseMap.put("returnStatus","fail");
-//            responseMap.put("returnMessage","Internal error");
-//        }
-//        return responseMap;
-//    }
+    /*进入pda LPN下架界面时，查询待拣货位
+     * */
+    @ResponseBody
+    @RequestMapping(value = "/queryWaitPickByStat",method= RequestMethod.POST)
+    public Map<String, Object> queryWaitPickByStat(@RequestBody Map<String,String> map){
+        Map<String, Object> responseMap = new HashMap<String, Object>();
+        try {
+            //货架到站后，传入bucketCode
+            if(StringUtils.isEmpty(map.get("wsCode"))){
+                throw new QuicktronException("工作站不能为空.");
+            }
+            responseMap = businessActionService.queryWaitPickByStat(map.get("wsCode"));
+        }catch(Exception e){
+            LOGGER.error("Internal error:"+e.getMessage());
+            responseMap.put("returnStatus","fail");
+            responseMap.put("returnMessage","Internal error");
+        }
+        return responseMap;
+    }
+
+    /*手工测试调用定时任务的service
+     * */
+    @ResponseBody
+    @RequestMapping(value = "/testSendTask",method= RequestMethod.POST)
+    public void testSendTask(@RequestBody Map<String,String> map){
+        try {
+            jobHanderService.sendRcsTask();
+        }catch(Exception e){
+            LOGGER.error("Internal error:"+e.getMessage());
+        }
+    }
+
+    /*手工测试调用定时任务的service
+     * */
+    @ResponseBody
+    @RequestMapping(value = "/testBucketSyn",method= RequestMethod.POST)
+    public void testBucketSyn(@RequestBody Map<String,String> map){
+        try {
+            jobHanderService.queryRcsBucketInfo();
+        }catch(Exception e){
+            LOGGER.error("Internal error:"+e.getMessage());
+        }
+    }
 
 }

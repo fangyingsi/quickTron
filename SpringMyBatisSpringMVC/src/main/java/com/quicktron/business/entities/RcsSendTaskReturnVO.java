@@ -9,7 +9,7 @@ public class RcsSendTaskReturnVO {
 
     private String code;
 
-    private String success;
+    private Boolean success;
 
     private Integer errorCode;
 

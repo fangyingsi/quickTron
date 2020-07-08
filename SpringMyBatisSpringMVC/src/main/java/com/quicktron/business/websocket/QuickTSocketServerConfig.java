@@ -19,7 +19,6 @@ public class QuickTSocketServerConfig extends WebMvcConfigurerAdapter implements
         WebSocketHandlerRegistration registration = webSocketHandlerRegistry.addHandler(new QuickTWebSocketHandler(), "/websocket","sockjs/websocket");
         SockJsServiceRegistration sockJS = registration.withSockJS();
         // 添加拦截器
-        registration.addInterceptors(new QuickTSocketInterceptor());
-
+        registration.addInterceptors(new QuickTSocketInterceptor()).setAllowedOrigins("*");
     }
 }

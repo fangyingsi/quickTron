@@ -99,19 +99,20 @@ public class QuickTWebSocketHandler implements WebSocketHandler {
             String wsCode = (String)session.getAttributes().get("WEBSOCKET_USERID");
             return wsCode;
         } catch (Exception e) {
-            e.printStackTrace();
+            LOGGER.info(e.getMessage());
         }
         return null;
     }
 
     public void sendMessageToUser(String wsCode,String contents) {
         WebSocketSession session = users.get(wsCode);
+        String newStr =contents.replaceAll("\\\\","");
         if(session !=null && session.isOpen()) {
             try {
-                TextMessage message = new TextMessage(contents);
+                TextMessage message = new TextMessage(newStr);
                 session.sendMessage(message);
             } catch (IOException e) {
-                e.printStackTrace();
+                LOGGER.info(e.getMessage());
             }
         }
     }

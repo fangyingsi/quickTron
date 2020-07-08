@@ -3,12 +3,15 @@
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:mvc="http://www.springframework.org/schema/mvc"
        xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:websocket="http://www.springframework.org/schema/websocket"
        xsi:schemaLocation="http://www.springframework.org/schema/beans
                         http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
                         http://www.springframework.org/schema/mvc
 						http://www.springframework.org/schema/mvc/spring-mvc-3.1.xsd
                         http://www.springframework.org/schema/context
-                        http://www.springframework.org/schema/context/spring-context-3.1.xsd">
+                        http://www.springframework.org/schema/context/spring-context-3.1.xsd
+                        http://www.springframework.org/schema/websocket
+                        http://www.springframework.org/schema/websocket/spring-websocket.xsd">
     <!-- 自动扫描 -->
     <context:component-scan base-package="com.quicktron"/>
     <!-- 引入配置文件 -->
@@ -153,5 +156,13 @@
         <!-- 日志保存天数[选填]，值大于3时生效 -->
         <property name="logRetentionDays" value="${xxl.job.executor.logretentiondays}" />
     </bean>
+
+    <bean id="socketHandler" class="com.quicktron.business.websocket.QuickTWebSocketHandler"/>
+    <websocket:handlers allowed-origins="*">
+        <websocket:mapping path="/websocket" handler="socketHandler"/>
+        <websocket:handshake-interceptors>
+            <bean class="com.quicktron.business.websocket.QuickTSocketInterceptor"/>
+        </websocket:handshake-interceptors>
+    </websocket:handlers>
 
 </beans>

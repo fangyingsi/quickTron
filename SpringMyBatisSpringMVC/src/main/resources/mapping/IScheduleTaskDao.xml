@@ -7,7 +7,7 @@
 <mapper namespace="com.quicktron.business.dao.IScheduleTaskDao">
 
 	<select id="autoSchedule" statementType="CALLABLE" resultType="com.quicktron.business.entities.ReportParamInVO">
-          {call qt_pro_autoControl()
+          {call p_qt_autoControl()
 			}
     </select>
 
@@ -29,7 +29,7 @@
 
 	<select id="updateBucket" statementType="CALLABLE" resultType="com.quicktron.business.entities.ReportParamInVO">
           {call p_qt_update_bucket(#{_vo.bucketCode,mode=IN,jdbcType=VARCHAR},
-                                   #{_vo.pointCode,mode=IN,jdbcType=VARCHAR},
+                                   #{_vo.endPoint,mode=IN,jdbcType=VARCHAR},
 								   #{_vo.returnMessage,mode=OUT,jdbcType=VARCHAR})
 			     }
     </select>

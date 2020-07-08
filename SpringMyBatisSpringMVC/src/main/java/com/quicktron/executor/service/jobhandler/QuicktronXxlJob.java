@@ -41,7 +41,7 @@ public class QuicktronXxlJob {
      * 开启自动调度，根据工作站的作业模式自动生成货架任务
      */
     @XxlJob("autoSchedule")
-    public ReturnT<String> autoSchedule() throws Exception {
+    public ReturnT<String> autoSchedule(String param) throws Exception {
         XxlJobLogger.log("autoSchedule job.");
         jobHanderService.autoSchedule();
         return ReturnT.SUCCESS;
@@ -51,21 +51,22 @@ public class QuicktronXxlJob {
      * 循环获取货架任务表中INIT任务，调用RCS接口
      */
     @XxlJob("sendTaskToRcs")
-    public ReturnT<String> sendTaskToRcs() throws Exception {
+    public ReturnT<String> sendTaskToRcs(String param) throws Exception {
         XxlJobLogger.log("sendTaskToRcs job.");
         jobHanderService.sendRcsTask();
         return ReturnT.SUCCESS;
     }
 
-    /**
-     * 调用RCS 货架信息查询接口，查询货架当前点位等
-     */
-    @XxlJob("synRcsBucketInfo")
-    public ReturnT<String> synRcsBucketInfo() throws Exception {
-        XxlJobLogger.log("queryRcsBucketInfo job.");
-        jobHanderService.queryRcsBucketInfo();
-        return ReturnT.SUCCESS;
-    }
+//    /**
+//     * 调用RCS 货架信息查询接口，查询货架当前点位等
+//     * 取消定时更新位置(王经理确认)
+//     */
+//    @XxlJob("synRcsBucketInfo")
+//    public ReturnT<String> synRcsBucketInfo(String param) throws Exception {
+//        XxlJobLogger.log("queryRcsBucketInfo job.");
+//        jobHanderService.queryRcsBucketInfo();
+//        return ReturnT.SUCCESS;
+//    }
 
     /**
      * 1、简单任务示例（Bean模式）

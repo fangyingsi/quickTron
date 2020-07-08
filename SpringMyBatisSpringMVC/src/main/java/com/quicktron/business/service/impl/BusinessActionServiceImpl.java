@@ -1,7 +1,11 @@
 package com.quicktron.business.service.impl;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.quicktron.business.dao.IBusinessActionDao;
 import com.quicktron.business.dao.IQueryBucketSlotDao;
+import com.quicktron.business.dao.IScheduleTaskDao;
 import com.quicktron.business.entities.ReportParamInVO;
 import com.quicktron.business.entities.WaitForPickVO;
 import com.quicktron.business.service.IBusinessActionService;
@@ -21,6 +25,9 @@ public class BusinessActionServiceImpl implements IBusinessActionService {
 
     @Resource
     private IBusinessActionDao businessActionDao;
+
+    @Resource
+    private IScheduleTaskDao scheduleTaskDao;
 
     @Autowired
     private QuickTWebSocketHandler quickTWebSocketHandler;
@@ -60,15 +67,23 @@ public class BusinessActionServiceImpl implements IBusinessActionService {
 
         try {
             String returnMessage = "";
+            //更新货架任务状态
             businessActionDao.refreshTask(inputVo);
+
             //操作完成，过程返回success
             if ("success".equals(inputVo.getReturnMessage())) {
                 //如果状态是DONE，触发消息发给前端
-                responseMap = queryWaitPickList(inputVo.getBucketCode());
-                if("success".equals(responseMap.get("returnStatus"))){
-                    //根据目的点位在哪个工作站，判断谁登录pda绑定了这个工作站并开启自动调度，就弹出消息给谁
-                    //给前台发送消息
-                    quickTWebSocketHandler.sendMessageToUser(responseMap.get("wsCode").toString(), responseMap.toString());
+                //不能先更新状态为99，不然根据货架去找可能找到很多历史任务
+                if("DONE".equals(inputVo.getTaskStatus())){
+                   //更新货架信息(点位)
+                    scheduleTaskDao.updateBucket(inputVo);
+                    responseMap = queryWaitPickList(inputVo.getBucketCode());
+                    //查到记录
+                    if("success".equals(responseMap.get("returnStatus"))){
+                        //根据目的点位在哪个工作站，判断谁登录pda绑定了这个工作站并开启自动调度，就弹出消息给谁
+                        //给前台发送消息
+                        quickTWebSocketHandler.sendMessageToUser(responseMap.get("wsCode").toString(), JSON.toJSONString(responseMap));
+                    }
                 }
                 return responseMap;
             }else {
@@ -197,6 +212,8 @@ public class BusinessActionServiceImpl implements IBusinessActionService {
     }
 
 
+    /*货架到站时主动根据货架编码查出拣货任务是哪个工作站的，发消息给工作站登录人员
+    * */
     @Override
     public Map<String, Object> queryWaitPickList(String bucketCode) {
         Map<String, Object> responseMap = new HashMap<String, Object>();
@@ -205,14 +222,35 @@ public class BusinessActionServiceImpl implements IBusinessActionService {
 
         try{
             List<WaitForPickVO> waitForPickVOList=businessActionDao.queryWaitPickLpn(bucketCode);
+            String jsonList =JSON.toJSONString(waitForPickVOList);
             Map<String, Object> dataMap = new HashMap<String, Object>();
-            dataMap.put("rows", waitForPickVOList);
+            dataMap.put("rows", jsonList);
             dataMap.put("total", 1);//不需要分页，写死没关系
-
+            responseMap.put("data",dataMap);
             //取记录中随意一条的 wsCode，即货架到达哪个工作站，找到登录该工作站的会话，发送消息
             for(WaitForPickVO waitForPickVO : waitForPickVOList){
                 responseMap.put("wsCode",waitForPickVO.getWsCode());
             }
+        }catch(Exception e){
+            responseMap.put("returnStatus","fail");
+            responseMap.put("returnMessage",e.getMessage());
+        }
+        return responseMap;
+    }
+
+    /*工作站登录人进去LPN下架页面查询待拣货位
+     * */
+    public Map<String, Object> queryWaitPickByStat(String wsCode) {
+        Map<String, Object> responseMap = new HashMap<String, Object>();
+        responseMap.put("returnStatus","success");
+        responseMap.put("returnMessage","ok");
+
+        try{
+            List<WaitForPickVO> waitForPickVOList=businessActionDao.queryWaitPickByStat(wsCode);
+            Map<String, Object> dataMap = new HashMap<String, Object>();
+            dataMap.put("rows", waitForPickVOList);
+            dataMap.put("total", 1);//不需要分页，写死没关系
+            responseMap.put("data",waitForPickVOList);
         }catch(Exception e){
             responseMap.put("returnStatus","fail");
             responseMap.put("returnMessage",e.getMessage());

@@ -21,27 +21,77 @@
 
         <!-- 到站待拣货位 -->
         <select id="queryWaitPickLpn" resultType="com.quicktron.business.entities.WaitForPickVO">
-            select sd.point_name as "pointName",
-                   pk.ws_code as "wsCode",
-                   concat('第',s.bucket_floor,'层') as "bucketFloor",
-                   u.user_code as "updateBy"
-              from qt_pick_task pk,
-                   qt_bucket_task bk,
-                   qt_station_dtl sd,
-                   qt_station     st,
-                   qt_user        u ,
-                   qt_slot s
-             where pk.bucket_code = #{_bucket,mode=IN,jdbcType=VARCHAR}
-               and pk.bucket_code = bk.bucket_code
-               and pk.task_status = 1 -- 1表示已从拣货下发bucket task
-               and bk.task_status >= 0
-               and bk.task_status <![CDATA[ < ]]> 99
-               and pk.ws_code = sd.ws_code
-               and sd.ws_code = st.ws_code
-               and bk.end_point = sd.point_code -- 目标是工作站点位
-               and pk.slot_code = s.slot_code
-               and cast(st.update_by as unsigned int) = u.id
-               order by sd.id
+           SELECT bb.point_name as "pointName",
+                  bb.bucket_floor AS "bucketFloor",
+                  bb.ws_code AS "wsCode"
+            FROM(SELECT
+                        @num := IF(@str = aa.point_name, @num + 1, 1) rownum,
+                        aa.bucket_floor,
+                        @str := aa.point_name point_name,
+                        aa.ws_code
+                    FROM(
+                        SELECT
+                            sd.point_code,
+                            sd.point_name,
+                            pk.ws_code,
+                            concat( '第', s.bucket_floor, '层' ) bucket_floor -- u.user_code AS "updateBy"
+                        FROM
+                            qt_pick_task pk,
+                            qt_bucket_task bk,
+                            qt_bucket b,
+                            qt_station_dtl sd,-- qt_station st,
+                        -- qt_user u,
+                            qt_slot s
+                        WHERE
+                            pk.bucket_code = #{_bucket,mode=IN,jdbcType=VARCHAR}
+                            AND pk.bucket_code = bk.bucket_code
+                            AND pk.bucket_code = b.bucket_code
+                            AND pk.task_status = 1 -- 1表示已从拣货下发bucket task
+                            AND bk.task_status = 99 -- DONE才推送给前端
+                            AND pk.ws_code = sd.ws_code -- AND sd.ws_code = st.ws_code
+                            AND bk.end_point = sd.point_code -- 目标是工作站点位
+                            AND b.point_code = sd.point_code -- 货架在工作站点位上
+                            AND pk.slot_code = s.slot_code -- AND cast( st.update_by AS UNSIGNED INT ) = u.id
+                            ) aa,(SELECT @str := '', @num := 0) t1
+                    ORDER BY aa.point_name, aa.bucket_floor
+              )bb where bb.rownum = 1
+        </select>
+
+        <!-- 工作站下待拣货位 -->
+        <select id="queryWaitPickByStat" resultType="com.quicktron.business.entities.WaitForPickVO">
+            SELECT bb.point_name as "pointName",
+                   bb.bucket_floor AS "bucketFloor",
+                   bb.ws_code AS "wsCode"
+             FROM(SELECT
+                        @num := IF(@str = aa.point_name, @num + 1, 1) rownum,
+                        aa.bucket_floor,
+                        @str := aa.point_name point_name,
+                        aa.ws_code
+                  FROM(select sd.point_name,
+                              pk.ws_code,
+                              concat('第',s.bucket_floor,'层') bucket_floor
+                        from qt_pick_task pk,
+                             qt_bucket_task bk,
+                             qt_bucket b,
+                             qt_station_dtl sd,
+                             qt_slot s
+                       where pk.ws_code = #{_wsCode,mode=IN,jdbcType=VARCHAR}
+                         and pk.bucket_code = bk.bucket_code
+                         and pk.task_status = 1 -- 1表示已从拣货下发bucket task
+                         and bk.task_status = 99 -- 99 已到站
+                         and pk.ws_code = sd.ws_code
+                         and bk.end_point = sd.point_code -- 目标是工作站点位
+                         and pk.slot_code = s.slot_code
+                         and pk.bucket_code = b.bucket_code
+                         and sd.point_code = b.point_code -- 货架在工作站点位上
+                         and not exists(select 1
+                                         from qt_bucket_task dk
+                                        where pk.bucket_code = dk.bucket_code
+                                          and bk.task_status >= 0
+                                          and bk.task_status <![CDATA[ < ]]> 99)
+                      ) aa,(SELECT @str := '', @num := 0) t1
+                  ORDER BY aa.point_name, aa.bucket_floor
+               )bb where bb.rownum = 1
         </select>
 <!--    -->
 <!--    <select id="getInfo" statementType="CALLABLE" resultMap="infoResultMap" parameterType="java.util.HashMap">-->

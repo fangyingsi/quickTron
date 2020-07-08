@@ -10,9 +10,9 @@ public interface IBusinessActionDao {
 
 //    int queryLpnSlotCnt(@Param("_slotCode")String slotCode,@Param("_lpn")String lpn);
 
-    /*上下架LPN
+    /*查询工作站下待拣货位
     * */
-//    void updateLpnSlotRelat(@Param("_vo")ReportParamInVO inputVo,@Param("_returnMessage")String returnMessage);
+    List<WaitForPickVO> queryWaitPickByStat(@Param("_wsCode")String  wsCode);
 
     List<WaitForPickVO> queryWaitPickLpn(@Param("_bucket")String  bucketCode);
 

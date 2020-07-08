@@ -1,5 +1,6 @@
 package com.quicktron.business.service.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.quicktron.business.dao.IBusinessActionDao;
 import com.quicktron.business.dao.IScheduleTaskDao;
@@ -8,6 +9,8 @@ import com.quicktron.business.entities.RcsSendTaskReturnVO;
 import com.quicktron.business.entities.RcsTaskVO;
 import com.quicktron.business.entities.ReportParamInVO;
 import com.quicktron.business.service.IJobHanderService;
+import com.quicktron.common.utils.QuicktronException;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
@@ -51,45 +54,44 @@ public class JobHanderServiceImpl implements IJobHanderService{
     * */
     public void sendRcsTask() {
       try {
-            String URL = "http://127.0.0.1:9999/pcquery/login";
-
+            String URL = "http://127.0.0.1:7777/test/";
             LOGGER.info("获取bucket task中的INIT任务，调用RCS任务下发接口 begin");
 
             //查询货架任务,每次取一条
             List<RcsTaskVO> initTaskList = scheduleTaskDao.getInitBucketTask();
             LOGGER.info("获取到待下发任务.");
             LOGGER.info(initTaskList.toString());
-    //        for(RcsTaskVO taskVO:initTaskList){
-
-    //                //下发任务前校验
-    //                if(StringUtils.isEmpty(taskVO.getEndArea())&&StringUtils.isEmpty(taskVO.getEndArea())){
-    //                    throw new QuicktronException("任务的目标区域、目标点位不能同时为空.");
-    //                }
-    //                if(!"online".equals(taskVO.getLetDownFlag())&&!"standby".equals(taskVO.getLetDownFlag())&&!"offline".equals(taskVO.getLetDownFlag())){
-    //                    throw new QuicktronException("任务的let down flag状态不合法.");
-    //                }
+            for(RcsTaskVO taskVO:initTaskList) {
+                //下发任务前校验
+                if (StringUtils.isEmpty(taskVO.getEndArea()) && StringUtils.isEmpty(taskVO.getEndPoint())) {
+                    throw new QuicktronException("任务的目标区域、目标点位不能同时为空.");
+                }
+                if (!"online".equals(taskVO.getLetDownFlag()) && !"standby".equals(taskVO.getLetDownFlag()) && !"offline".equals(taskVO.getLetDownFlag())) {
+                    throw new QuicktronException("任务的let down flag状态不合法.");
+                }
 
                 //请求头
                 HttpHeaders headers = new HttpHeaders();
                 headers.add("Accept", MediaType.APPLICATION_JSON.toString());
                 headers.setContentType(MediaType.APPLICATION_JSON);
 
-                //请求参数
-                JSONObject paramJson = new JSONObject();
-                //先用登录接口测试
-                paramJson.put("userCode", "kc001");
-                paramJson.put("passWord", "wb123");
-                HttpEntity<JSONObject> formEntity = new HttpEntity<>(paramJson, headers);
-                //发送请求---------------这里要改
-                //发送请求---------------这里要改
-                //发送请求---------------这里要改
-    //            String result = restTemplate.postForObject(URL, formEntity, String.class);
-    //            LOGGER.info("获取到待下发任务.");
+//                //请求参数
+//                JSONObject paramJson = new JSONObject();
+//                //先用登录接口测试
+//                paramJson.put("userCode", "kc001");
+//                paramJson.put("passWord", "wb123");
 
-                RcsSendTaskReturnVO rcsReturnVo = restTemplate.postForObject(URL, formEntity, RcsSendTaskReturnVO.class);
+                String paramJson = JSON.toJSONString(taskVO);
+                HttpEntity<String> formEntity = new HttpEntity<>(paramJson, headers);
+
+                //            String result = restTemplate.postForObject(URL, formEntity, String.class);
+                //            LOGGER.info("获取到待下发任务.");
+                //发送请求
+                String rcsReturnStr = restTemplate.postForObject(URL, formEntity, String.class);
+                RcsSendTaskReturnVO rcsReturnVo = JSON.parseObject(rcsReturnStr, RcsSendTaskReturnVO.class);
                 //如果返回成功、更新任务状态为1，表示已下发；
                 ReportParamInVO buckTaskInput = new ReportParamInVO();
-                if("success".equals(rcsReturnVo.getMsg())){
+                if (rcsReturnVo.getSuccess()) {
                     buckTaskInput.setId(Integer.parseInt(rcsReturnVo.getRobotJobId()));
                     buckTaskInput.setBucketStatus("1"); //1为已下发
                     businessActionDao.refreshTask(buckTaskInput);
@@ -97,11 +99,11 @@ public class JobHanderServiceImpl implements IJobHanderService{
                     if ("success".equals(buckTaskInput.getReturnMessage())) {
                         //写日志
                         LOGGER.info("success");
-                    }else {
+                    } else {
                         //写日志
                         LOGGER.info("fail");
                     }
-                }else {
+                } else {
                     //下发任务失败、更新任务的send_count减1
                     buckTaskInput.setId(Integer.parseInt(rcsReturnVo.getRobotJobId()));
                     //不给定任务状态参数，说明是send_count减1
@@ -110,11 +112,12 @@ public class JobHanderServiceImpl implements IJobHanderService{
                     if ("success".equals(buckTaskInput.getReturnMessage())) {
                         //写日志
                         LOGGER.info("success");
-                    }else {
+                    } else {
                         //写日志
                         LOGGER.info("fail");
                     }
                 }
+            }
         } catch (Exception e) {
             LOGGER.info("Integer error:"+e.getMessage());
         }
@@ -131,24 +134,21 @@ public class JobHanderServiceImpl implements IJobHanderService{
     */
     public void queryRcsBucketInfo() {
         try {
-            String URL = "http://[IP:Port]/api/quicktron/rcs/standardized.bucket.query";
+            String URL = "http://127.0.0.1:7777/test/";
 
             HttpHeaders header = new HttpHeaders();
             header.add("Accept", MediaType.APPLICATION_JSON.toString());
             header.setContentType(MediaType.APPLICATION_JSON);
 
-            //请求参数
+            //请求参数，看RCS接收什么样的格式参数
             JSONObject paramJson = new JSONObject();
-            /**
-             *
-             *
-             */
             paramJson.put("warehouseId", "kc001");
             paramJson.put("zoneCode", "wb123");
 //            paramJson.put("bucketCode", "wb123");
             HttpEntity<JSONObject> formEntity = new HttpEntity<>(paramJson, header);
             //不传货架编码，查询整个区域的货架信息,发送请求
-            List<RcsBuckInfoVO> rcsBuckInfoVOList = restTemplate.postForObject(URL, formEntity, List.class);
+            String rcsBucketStr =restTemplate.postForObject(URL, formEntity, String.class);
+            List<RcsBuckInfoVO> rcsBuckInfoVOList =JSON.parseArray(rcsBucketStr, RcsBuckInfoVO.class);
             for(RcsBuckInfoVO rcsBuckInfoVO:rcsBuckInfoVOList) {
                 //如果返回成功、更新任务的当前点位、状态
                 if ("true".equals(rcsBuckInfoVO.getSuccess())) {
@@ -163,10 +163,10 @@ public class JobHanderServiceImpl implements IJobHanderService{
                     bucketTaskTwo.setBucketCode(buckTaskInput.getBucketCode());
 
                     //更新任务状态
+                    //王经理说不定时更新位置了
                     businessActionDao.refreshTask(buckTaskInput);
                     //更新货架点位
                     scheduleTaskDao.updateBucket(bucketTaskTwo);
-
                     //操作完成，过程返回success
                     if (!"success".equals(buckTaskInput.getReturnMessage()) || !"success".equals(bucketTaskTwo.getReturnMessage())) {
                         //写成功日志
