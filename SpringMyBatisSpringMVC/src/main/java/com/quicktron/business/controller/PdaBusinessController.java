@@ -98,7 +98,7 @@ public class PdaBusinessController {
     @RequestMapping(value = "/testSendTask",method= RequestMethod.POST)
     public void testSendTask(@RequestBody Map<String,String> map){
         try {
-            jobHanderService.sendRcsTask();
+//            jobHanderService.sendRcsTask();
         }catch(Exception e){
             LOGGER.error("Internal error:"+e.getMessage());
         }

@@ -25,6 +25,13 @@
         WHERE b.bucket_code = t.bucket_code
 	      AND t.task_status = 0
 	      AND t.send_count > 0
+		<if test="_slot != null and _slot !=''" >
+		  AND exists(select 1
+			           from qt_slot so
+			          where b.bucket_code = so.bucket_code
+			            and so.slot_code = #{_slot,mode=IN,jdbcType=VARCHAR}
+			          )
+		</if>
     </select>
 
 	<select id="updateBucket" statementType="CALLABLE" resultType="com.quicktron.business.entities.ReportParamInVO">

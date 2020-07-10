@@ -41,8 +41,69 @@ public class JobHanderServiceImpl implements IJobHanderService{
         try {
             scheduleTaskDao.autoSchedule();
         }catch(Exception e){
-            LOGGER.info("Integer error:"+e.getMessage());
+            LOGGER.error("Integer error:"+e.getMessage());
         }
+    }
+
+    public boolean sendRcsTask(RcsTaskVO taskVO){
+        //任务下发成功就可以算成功，不用再看货架任务更新是否成功，因为后面RCS会主动更新状态
+        boolean result = false;
+        String URL = "192.168.1.47:10080/api/quicktron/rcs/standardized.robot.job.submit";
+        LOGGER.info("开始下发任务编码:"+taskVO.getRobotJobId());
+        try {
+            //下发任务前校验
+            if (StringUtils.isEmpty(taskVO.getEndArea()) && StringUtils.isEmpty(taskVO.getEndPoint())) {
+                throw new QuicktronException("任务的目标区域、目标点位不能同时为空.");
+            }
+            if (!"online".equals(taskVO.getLetDownFlag()) && !"standby".equals(taskVO.getLetDownFlag()) && !"offline".equals(taskVO.getLetDownFlag())) {
+                throw new QuicktronException("任务的let down flag状态不合法.");
+            }
+            //请求头
+            HttpHeaders headers = new HttpHeaders();
+            headers.add("Accept", MediaType.APPLICATION_JSON.toString());
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            //                //请求参数
+            //                JSONObject paramJson = new JSONObject();
+            //                paramJson.put("userCode", "kc001");
+            String paramJson = JSON.toJSONString(taskVO);
+            HttpEntity<String> formEntity = new HttpEntity<>(paramJson, headers);
+            //发送请求
+            String rcsReturnStr = restTemplate.postForObject(URL, formEntity, String.class);
+            RcsSendTaskReturnVO rcsReturnVo = JSON.parseObject(rcsReturnStr, RcsSendTaskReturnVO.class);
+            //如果返回成功、更新任务状态为1，表示已下发；
+            ReportParamInVO buckTaskInput = new ReportParamInVO();
+            buckTaskInput.setId(Integer.parseInt(rcsReturnVo.getRobotJobId()));
+            if ("success".equals(rcsReturnVo.getMsg())) {
+                result =true;
+                LOGGER.info("任务下发RCS成功"+buckTaskInput.getId());
+                buckTaskInput.setBucketStatus("1"); //1为已下发
+                businessActionDao.refreshTask(buckTaskInput);
+                //操作完成，过程返回success
+                if ("success".equals(buckTaskInput.getReturnMessage())) {
+                    //写日志
+                    LOGGER.info("任务下发RCS后更新货架任务状态成功"+buckTaskInput.getId());
+                } else {
+                    //写日志
+                    LOGGER.info("任务下发RCS后更新货架任务状态失败"+buckTaskInput.getId());
+                }
+            } else {
+                LOGGER.info("任务下发RCS失败"+buckTaskInput.getId());
+                //下发任务失败、更新任务的send_count减1
+                //不给定任务状态参数，说明是send_count减1
+                businessActionDao.refreshTask(buckTaskInput);
+                //操作完成，过程返回success
+                if ("success".equals(buckTaskInput.getReturnMessage())) {
+                    //写日志
+                    LOGGER.info("任务下发RCS失败，更新任务可下发次数减1成功.");
+                } else {
+                    //写日志
+                    LOGGER.info("任务下发RCS失败，更新任务可下发次数减1失败.");
+                }
+            }
+        }catch (Exception e){
+            LOGGER.error("下发任务异常,任务ID为:"+taskVO.getRobotJobId()+","+e.getMessage());
+        }
+        return result;
     }
 
     /*调用任务下发接口要做成单独的接口，前台也要调用
@@ -52,74 +113,17 @@ public class JobHanderServiceImpl implements IJobHanderService{
       2.5.0后版本
       http://[IP:Port]/api/quicktron/rcs/standardized.robot.job.submit
     * */
-    public void sendRcsTask() {
+    public void sendRcsTaskJob(){
       try {
-            String URL = "http://127.0.0.1:7777/test/";
             LOGGER.info("获取bucket task中的INIT任务，调用RCS任务下发接口 begin");
-
-            //查询货架任务,每次取一条
-            List<RcsTaskVO> initTaskList = scheduleTaskDao.getInitBucketTask();
-            LOGGER.info("获取到待下发任务.");
-            LOGGER.info(initTaskList.toString());
+            //查询货架任务
+            List<RcsTaskVO> initTaskList = scheduleTaskDao.getInitBucketTask("");
+            LOGGER.info("待发任务条数："+initTaskList.size());
             for(RcsTaskVO taskVO:initTaskList) {
-                //下发任务前校验
-                if (StringUtils.isEmpty(taskVO.getEndArea()) && StringUtils.isEmpty(taskVO.getEndPoint())) {
-                    throw new QuicktronException("任务的目标区域、目标点位不能同时为空.");
-                }
-                if (!"online".equals(taskVO.getLetDownFlag()) && !"standby".equals(taskVO.getLetDownFlag()) && !"offline".equals(taskVO.getLetDownFlag())) {
-                    throw new QuicktronException("任务的let down flag状态不合法.");
-                }
-
-                //请求头
-                HttpHeaders headers = new HttpHeaders();
-                headers.add("Accept", MediaType.APPLICATION_JSON.toString());
-                headers.setContentType(MediaType.APPLICATION_JSON);
-
-//                //请求参数
-//                JSONObject paramJson = new JSONObject();
-//                //先用登录接口测试
-//                paramJson.put("userCode", "kc001");
-//                paramJson.put("passWord", "wb123");
-
-                String paramJson = JSON.toJSONString(taskVO);
-                HttpEntity<String> formEntity = new HttpEntity<>(paramJson, headers);
-
-                //            String result = restTemplate.postForObject(URL, formEntity, String.class);
-                //            LOGGER.info("获取到待下发任务.");
-                //发送请求
-                String rcsReturnStr = restTemplate.postForObject(URL, formEntity, String.class);
-                RcsSendTaskReturnVO rcsReturnVo = JSON.parseObject(rcsReturnStr, RcsSendTaskReturnVO.class);
-                //如果返回成功、更新任务状态为1，表示已下发；
-                ReportParamInVO buckTaskInput = new ReportParamInVO();
-                if (rcsReturnVo.getSuccess()) {
-                    buckTaskInput.setId(Integer.parseInt(rcsReturnVo.getRobotJobId()));
-                    buckTaskInput.setBucketStatus("1"); //1为已下发
-                    businessActionDao.refreshTask(buckTaskInput);
-                    //操作完成，过程返回success
-                    if ("success".equals(buckTaskInput.getReturnMessage())) {
-                        //写日志
-                        LOGGER.info("success");
-                    } else {
-                        //写日志
-                        LOGGER.info("fail");
-                    }
-                } else {
-                    //下发任务失败、更新任务的send_count减1
-                    buckTaskInput.setId(Integer.parseInt(rcsReturnVo.getRobotJobId()));
-                    //不给定任务状态参数，说明是send_count减1
-                    businessActionDao.refreshTask(buckTaskInput);
-                    //操作完成，过程返回success
-                    if ("success".equals(buckTaskInput.getReturnMessage())) {
-                        //写日志
-                        LOGGER.info("success");
-                    } else {
-                        //写日志
-                        LOGGER.info("fail");
-                    }
-                }
+                sendRcsTask(taskVO);
             }
         } catch (Exception e) {
-            LOGGER.info("Integer error:"+e.getMessage());
+            LOGGER.error("Integer error:"+e.getMessage());
         }
     }
 
@@ -161,7 +165,6 @@ public class JobHanderServiceImpl implements IJobHanderService{
                     buckTaskInput.setPointCode(rcsBuckInfoVO.getHomePoint()); //所在点位
                     buckTaskInput.setUpdateBy("1"); //更新人
                     bucketTaskTwo.setBucketCode(buckTaskInput.getBucketCode());
-
                     //更新任务状态
                     //王经理说不定时更新位置了
                     businessActionDao.refreshTask(buckTaskInput);
@@ -180,7 +183,7 @@ public class JobHanderServiceImpl implements IJobHanderService{
                 }
             }
         }catch (Exception e){
-            LOGGER.info("Internal error" + e.getMessage());
+            LOGGER.error("Internal error" + e.getMessage());
         }
     }
 

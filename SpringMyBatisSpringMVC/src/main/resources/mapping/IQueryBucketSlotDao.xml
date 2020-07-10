@@ -12,6 +12,7 @@
         <result column="end_point" property="endPoint" jdbcType="VARCHAR" />
         <result column="point_code" property="pointCode" jdbcType="VARCHAR" />
         <result column="create_by" property="createBy" jdbcType="VARCHAR" />
+        <result column="update_by" property="updateBy" jdbcType="VARCHAR" />
         <result column="slot_code" property="slotCode" jdbcType="VARCHAR" />
         <result column="lpn" property="lpn" jdbcType="VARCHAR" />
         <result column="create_time" property="createTime" jdbcType="VARCHAR" />
@@ -122,7 +123,14 @@
                b.point_code,
                s.slot_code,
                s.lpn,
-               s.create_time
+              (select u.user_code
+                from qt_user u
+               where cast(s.create_by AS UNSIGNED INT ) = u.id) create_by,
+               s.create_time,
+              (select u.user_code
+                 from qt_user u
+                where cast(s.update_by AS UNSIGNED INT ) = u.id) update_by,
+              s.update_time
          from qt_bucket b,
               qt_slot s
         where b.bucket_code = s.bucket_code
@@ -161,9 +169,16 @@
         select t.log_key as "logKey",
                t.attribute1 as "attribute1",
                t.log_type as "logType",
-               t.create_by as "createBy"
+               (select u.user_code
+                 from qt_user u
+                where cast(t.create_by AS UNSIGNED INT ) = u.id) as "createBy",
+               t.create_time as "createTime",
+               (select u.user_code
+                  from qt_user u
+                 where cast(t.update_by AS UNSIGNED INT ) = u.id) as "updateBy",
+               t.update_time as "updateTime"
           from qt_operate_log t
-         where log_type in('up','down')
+         where log_type in('UP','DOWN')
         <include refid="invInOutCondition" />
         limit #{_curPage,jdbcType=INTEGER} ,#{_pageSize,jdbcType=INTEGER}
     </select>
@@ -171,7 +186,7 @@
     <select id="queryInvInOutCnt" resultType="java.lang.Integer">
         select count(1)
           from qt_operate_log t
-         where log_type in('up','down')
+         where log_type in('UP','DOWN')
         <include refid="invInOutCondition" />
     </select>
 
@@ -208,11 +223,19 @@
 
     <select id="queryBucketTask" resultMap="BaseResultMap">
         select b.bucket_code,
-               t.task_status,
+              (select l.meaning
+                from qt_lookup_value l
+               where l.lookup_type ='TASK_STATUS'
+                 and l.lookup_code =t.task_status)task_status,
                b.point_code,
                t.end_point,
-               t.create_by,
+              (select u.user_code
+                 from qt_user u
+                where cast(t.create_by AS UNSIGNED INT ) = u.id) create_by,
                t.create_time,
+               (select u.user_code
+                  from qt_user u
+                 where cast(t.update_by AS UNSIGNED INT ) = u.id)update_by,
                t.update_time
           from qt_bucket b,
                qt_bucket_task t
@@ -255,12 +278,22 @@
 
     <select id="queryPickTask" resultMap="BaseResultMap">
         select  b.bucket_code,
-                t.task_status,
+               (select l.meaning
+                 from qt_lookup_value l
+                where l.lookup_type ='PICK_STATUS'
+                  and l.lookup_code =t.task_status)task_status,
                 b.slot_code,
                 b.lpn,
-                p.create_by,
+               (select u.user_code
+                  from qt_user u
+                 where cast(p.create_by AS UNSIGNED INT ) = u.id) create_by,
                 p.create_time,
-                p.update_time
+               (select u.user_code
+                  from qt_user u
+                 where cast(p.update_by AS UNSIGNED INT ) = u.id)update_by,
+                p.update_time,
+                bu.point_code,
+                t.end_point
          from   qt_slot b,
                 qt_bucket_task t,
                 qt_pick_task   p,
@@ -332,6 +365,7 @@
          WHERE	1 = 1
           AND a.bucket_code = b.bucket_code
         <include refid="queryBucketDataCondition" />
+          order by b.bucket_floor desc
     </select>
 
     <select id="queryBucketDataByLpnCnt" resultType="java.lang.Integer">

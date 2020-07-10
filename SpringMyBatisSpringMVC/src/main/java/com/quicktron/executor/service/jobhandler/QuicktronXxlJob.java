@@ -53,7 +53,7 @@ public class QuicktronXxlJob {
     @XxlJob("sendTaskToRcs")
     public ReturnT<String> sendTaskToRcs(String param) throws Exception {
         XxlJobLogger.log("sendTaskToRcs job.");
-        jobHanderService.sendRcsTask();
+        jobHanderService.sendRcsTaskJob();
         return ReturnT.SUCCESS;
     }
 
@@ -75,7 +75,7 @@ public class QuicktronXxlJob {
     public ReturnT<String> demoJobHandler(String param) throws Exception {
         XxlJobLogger.log("XXL-JOB, Hello World.");
 
-        jobHanderService.sendRcsTask();
+        jobHanderService.sendRcsTaskJob();
 
         return ReturnT.SUCCESS;
     }

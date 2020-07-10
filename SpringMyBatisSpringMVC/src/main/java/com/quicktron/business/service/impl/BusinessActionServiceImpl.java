@@ -1,15 +1,15 @@
 package com.quicktron.business.service.impl;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
 import com.quicktron.business.dao.IBusinessActionDao;
-import com.quicktron.business.dao.IQueryBucketSlotDao;
 import com.quicktron.business.dao.IScheduleTaskDao;
+import com.quicktron.business.entities.RcsTaskVO;
 import com.quicktron.business.entities.ReportParamInVO;
 import com.quicktron.business.entities.WaitForPickVO;
 import com.quicktron.business.service.IBusinessActionService;
+import com.quicktron.business.service.IJobHanderService;
 import com.quicktron.business.websocket.QuickTWebSocketHandler;
+import com.quicktron.common.utils.QuicktronException;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -31,6 +31,9 @@ public class BusinessActionServiceImpl implements IBusinessActionService {
 
     @Autowired
     private QuickTWebSocketHandler quickTWebSocketHandler;
+
+    @Autowired
+    private IJobHanderService jobHanderService;
 
     /*上下架lpn
     * */
@@ -60,6 +63,7 @@ public class BusinessActionServiceImpl implements IBusinessActionService {
     /*给RCS刷新任务状态
     * */
     public Map<String, Object> refreshTask(ReportParamInVO inputVo){
+        LOGGER.info("开始更新任务状态");
         //初始化返回值
         Map<String, Object> responseMap = new HashMap<String, Object>();
         responseMap.put("returnStatus", "success");
@@ -72,13 +76,14 @@ public class BusinessActionServiceImpl implements IBusinessActionService {
 
             //操作完成，过程返回success
             if ("success".equals(inputVo.getReturnMessage())) {
+                LOGGER.info("更新任务状态成功 ");
                 //如果状态是DONE，触发消息发给前端
-                //不能先更新状态为99，不然根据货架去找可能找到很多历史任务
                 if("DONE".equals(inputVo.getTaskStatus())){
                    //更新货架信息(点位)
+                    inputVo.setReturnMessage("");
                     scheduleTaskDao.updateBucket(inputVo);
                     responseMap = queryWaitPickList(inputVo.getBucketCode());
-                    //查到记录
+                    //查到记录,判断data.rows
                     if("success".equals(responseMap.get("returnStatus"))){
                         //根据目的点位在哪个工作站，判断谁登录pda绑定了这个工作站并开启自动调度，就弹出消息给谁
                         //给前台发送消息
@@ -138,12 +143,22 @@ public class BusinessActionServiceImpl implements IBusinessActionService {
 
         try {
             String returnMessage = "";
+            //生成货架任务记录
             businessActionDao.releaseBucket(inputVo);
-            //操作完成，过程返回success
+            //生成货架任务完成，过程返回success
             if ("success".equals(inputVo.getReturnMessage())) {
-                return responseMap;
+                //查询货架生成的货架任务,理论上只会有一条
+                List<RcsTaskVO> initTaskList = scheduleTaskDao.getInitBucketTask(inputVo.getSlotCode());
+                for (RcsTaskVO rcsTaskVO:initTaskList){
+                    //任务下发成功，可返回用户成功提示
+                    if(jobHanderService.sendRcsTask(rcsTaskVO)){
+                        return responseMap;
+                    }else {
+                        throw new QuicktronException("任务下发失败.");
+                    }
+                }
             }else {
-                //过程返回不成功
+                //生成货架任务失败
                 responseMap.put("returnStatus", "fail");
                 responseMap.put("returnMessage", inputVo.getReturnMessage());
             }
@@ -222,9 +237,8 @@ public class BusinessActionServiceImpl implements IBusinessActionService {
 
         try{
             List<WaitForPickVO> waitForPickVOList=businessActionDao.queryWaitPickLpn(bucketCode);
-            String jsonList =JSON.toJSONString(waitForPickVOList);
             Map<String, Object> dataMap = new HashMap<String, Object>();
-            dataMap.put("rows", jsonList);
+            dataMap.put("rows", waitForPickVOList);
             dataMap.put("total", 1);//不需要分页，写死没关系
             responseMap.put("data",dataMap);
             //取记录中随意一条的 wsCode，即货架到达哪个工作站，找到登录该工作站的会话，发送消息

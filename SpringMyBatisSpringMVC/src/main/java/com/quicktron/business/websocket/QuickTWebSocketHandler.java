@@ -112,7 +112,7 @@ public class QuickTWebSocketHandler implements WebSocketHandler {
                 TextMessage message = new TextMessage(newStr);
                 session.sendMessage(message);
             } catch (IOException e) {
-                LOGGER.info(e.getMessage());
+                LOGGER.error(e.getMessage());
             }
         }
     }
