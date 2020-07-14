@@ -37,13 +37,10 @@ public class QuickTWebSocketHandler implements WebSocketHandler {
     public void handleMessage(WebSocketSession webSocketSession, WebSocketMessage<?> webSocketMessage) throws Exception {
         TextMessage message = new TextMessage(webSocketMessage.getPayload()+ " received at server");
         System.out.println("服务器收到消息："+ message);
+        webSocketSession.sendMessage(message);
 //        if(message.getPayload().startsWith("#anyone#")){ //单发某人
 //            sendMessageToUser((String) webSocketSession.getAttributes().get(USER_ID),message.toString()) ;
 //        }
-////        Message msg=new Gson().fromJson(message.getPayload().toString(),Message.class);
-////        msg.setDate(new Date());
-////        sendMessageToUser(msg.getTo(), new TextMessage(new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss").create().toJson(msg)));
-
     }
 
 //    /*js调用websocket.send时候，会调用该方法*/

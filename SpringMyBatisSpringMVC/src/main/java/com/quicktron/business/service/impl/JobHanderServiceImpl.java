@@ -48,7 +48,7 @@ public class JobHanderServiceImpl implements IJobHanderService{
     public boolean sendRcsTask(RcsTaskVO taskVO){
         //任务下发成功就可以算成功，不用再看货架任务更新是否成功，因为后面RCS会主动更新状态
         boolean result = false;
-        String URL = "192.168.1.47:10080/api/quicktron/rcs/standardized.robot.job.submit";
+        String URL = "http://192.168.1.47:10080/api/quicktron/rcs/standardized.robot.job.submit";
         LOGGER.info("开始下发任务编码:"+taskVO.getRobotJobId());
         try {
             //下发任务前校验
@@ -97,7 +97,7 @@ public class JobHanderServiceImpl implements IJobHanderService{
                     LOGGER.info("任务下发RCS失败，更新任务可下发次数减1成功.");
                 } else {
                     //写日志
-                    LOGGER.info("任务下发RCS失败，更新任务可下发次数减1失败.");
+                    LOGGER.info("任务下发RCS失败，更新任务可下发次数减1失败."+buckTaskInput.getReturnMessage());
                 }
             }
         }catch (Exception e){

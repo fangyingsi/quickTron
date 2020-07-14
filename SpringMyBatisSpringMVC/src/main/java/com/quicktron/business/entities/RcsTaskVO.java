@@ -11,7 +11,7 @@ public class RcsTaskVO {
 
     /*仓库编号
      */
-    private Long warehouseId = Long.parseLong("9001");
+    private Long warehouseId = Long.parseLong("1");
 
     /*货架当前所属库区
      */

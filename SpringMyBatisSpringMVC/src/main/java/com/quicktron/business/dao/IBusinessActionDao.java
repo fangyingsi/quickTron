@@ -16,6 +16,8 @@ public interface IBusinessActionDao {
 
     List<WaitForPickVO> queryWaitPickLpn(@Param("_bucket")String  bucketCode);
 
+    int queryWaitPickLpnCnt(@Param("_bucket")String  bucketCode);
+
     void updateLpnSlotRelat(@Param("_vo")ReportParamInVO inputVo);
     /*刷新任务状态
      * */

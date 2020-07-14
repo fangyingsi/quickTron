@@ -57,6 +57,43 @@
               )bb where bb.rownum = 1
         </select>
 
+        <select id="queryWaitPickLpnCnt" resultType="java.lang.Integer">
+           SELECT count(1)
+            FROM(SELECT
+                        @num := IF(@str = aa.point_name, @num + 1, 1) rownum,
+                        aa.bucket_floor,
+                        @str := aa.point_name point_name,
+                        aa.ws_code
+                    FROM(
+                        SELECT
+                            sd.point_code,
+                            sd.point_name,
+                            pk.ws_code,
+                            concat( '第', s.bucket_floor, '层' ) bucket_floor -- u.user_code AS "updateBy"
+                        FROM
+                            qt_pick_task pk,
+                            qt_bucket_task bk,
+                            qt_bucket b,
+                            qt_station_dtl sd,-- qt_station st,
+                        -- qt_user u,
+                            qt_slot s
+                        WHERE
+                            pk.bucket_code = #{_bucket,mode=IN,jdbcType=VARCHAR}
+                            AND pk.bucket_code = bk.bucket_code
+                            AND pk.bucket_code = b.bucket_code
+                            AND pk.task_status = 1 -- 1表示已从拣货下发bucket task
+                            AND bk.task_status = 99 -- DONE才推送给前端
+                            AND pk.ws_code = sd.ws_code -- AND sd.ws_code = st.ws_code
+                            AND bk.end_point = sd.point_code -- 目标是工作站点位
+                            AND b.point_code = sd.point_code -- 货架在工作站点位上
+                            AND pk.slot_code = s.slot_code -- AND cast( st.update_by AS UNSIGNED INT ) = u.id
+                            ) aa,(SELECT @str := '', @num := 0) t1
+                    ORDER BY aa.point_name, aa.bucket_floor
+              )bb where bb.rownum = 1
+        </select>
+
+
+
         <!-- 工作站下待拣货位 -->
         <select id="queryWaitPickByStat" resultType="com.quicktron.business.entities.WaitForPickVO">
             SELECT bb.point_name as "pointName",

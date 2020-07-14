@@ -1,6 +1,7 @@
 package com.quicktron.business.service.impl;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.quicktron.business.dao.IBusinessActionDao;
 import com.quicktron.business.dao.IScheduleTaskDao;
 import com.quicktron.business.entities.RcsTaskVO;
@@ -77,14 +78,18 @@ public class BusinessActionServiceImpl implements IBusinessActionService {
             //操作完成，过程返回success
             if ("success".equals(inputVo.getReturnMessage())) {
                 LOGGER.info("更新任务状态成功 ");
-                //如果状态是DONE，触发消息发给前端
+                //如果状态是DONE，有两种情况：货架到达工作站，或货架到达释放目标点
                 if("DONE".equals(inputVo.getTaskStatus())){
                    //更新货架信息(点位)
                     inputVo.setReturnMessage("");
                     scheduleTaskDao.updateBucket(inputVo);
                     responseMap = queryWaitPickList(inputVo.getBucketCode());
-                    //查到记录,判断data.rows
-                    if("success".equals(responseMap.get("returnStatus"))){
+                    //查到记录,判断data.total
+                    JSONObject json = new JSONObject(responseMap);
+                    JSONObject data = json.getJSONObject("data");
+                    int cnt = (Integer.parseInt(data.get("total").toString()));
+                    //如果cnt>0，说明是货架到站；如果cnt =0，说明货架到达释放目标点
+                    if(cnt > 0){
                         //根据目的点位在哪个工作站，判断谁登录pda绑定了这个工作站并开启自动调度，就弹出消息给谁
                         //给前台发送消息
                         quickTWebSocketHandler.sendMessageToUser(responseMap.get("wsCode").toString(), JSON.toJSONString(responseMap));
@@ -239,7 +244,7 @@ public class BusinessActionServiceImpl implements IBusinessActionService {
             List<WaitForPickVO> waitForPickVOList=businessActionDao.queryWaitPickLpn(bucketCode);
             Map<String, Object> dataMap = new HashMap<String, Object>();
             dataMap.put("rows", waitForPickVOList);
-            dataMap.put("total", 1);//不需要分页，写死没关系
+            dataMap.put("total", businessActionDao.queryWaitPickLpnCnt(bucketCode));//不需要分页，写死没关系
             responseMap.put("data",dataMap);
             //取记录中随意一条的 wsCode，即货架到达哪个工作站，找到登录该工作站的会话，发送消息
             for(WaitForPickVO waitForPickVO : waitForPickVOList){
