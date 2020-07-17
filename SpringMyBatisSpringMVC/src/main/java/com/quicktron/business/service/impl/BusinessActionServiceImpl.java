@@ -82,7 +82,7 @@ public class BusinessActionServiceImpl implements IBusinessActionService {
                 if("DONE".equals(inputVo.getTaskStatus())){
                    //更新货架信息(点位)
                     inputVo.setReturnMessage("");
-                    scheduleTaskDao.updateBucket(inputVo);
+                    //scheduleTaskDao.updateBucket(inputVo);
                     responseMap = queryWaitPickList(inputVo.getBucketCode());
                     //查到记录,判断data.total
                     JSONObject json = new JSONObject(responseMap);

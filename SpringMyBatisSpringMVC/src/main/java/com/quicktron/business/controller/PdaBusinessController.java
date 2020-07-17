@@ -107,6 +107,18 @@ public class PdaBusinessController {
     /*手工测试调用定时任务的service
      * */
     @ResponseBody
+    @RequestMapping(value = "/testAutoSchedule",method= RequestMethod.POST)
+    public void testAutoSchedule(@RequestBody Map<String,String> map){
+        try {
+            jobHanderService.autoSchedule();
+        }catch(Exception e){
+            LOGGER.error("Internal error:"+e.getMessage());
+        }
+    }
+
+    /*手工测试调用定时任务的service
+     * */
+    @ResponseBody
     @RequestMapping(value = "/testBucketSyn",method= RequestMethod.POST)
     public void testBucketSyn(@RequestBody Map<String,String> map){
         try {

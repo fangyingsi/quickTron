@@ -48,7 +48,7 @@ public class JobHanderServiceImpl implements IJobHanderService{
     public boolean sendRcsTask(RcsTaskVO taskVO){
         //任务下发成功就可以算成功，不用再看货架任务更新是否成功，因为后面RCS会主动更新状态
         boolean result = false;
-        String URL = "http://192.168.1.47:10080/api/quicktron/rcs/standardized.robot.job.submit";
+        String URL = "http://192.168.1.120:10080/api/quicktron/rcs/standardized.robot.job.submit";
         LOGGER.info("开始下发任务编码:"+taskVO.getRobotJobId());
         try {
             //下发任务前校验
@@ -76,18 +76,18 @@ public class JobHanderServiceImpl implements IJobHanderService{
             if ("success".equals(rcsReturnVo.getMsg())) {
                 result =true;
                 LOGGER.info("任务下发RCS成功"+buckTaskInput.getId());
-                buckTaskInput.setBucketStatus("1"); //1为已下发
+                buckTaskInput.setTaskStatus("SEND_RCS"); //已下发
                 businessActionDao.refreshTask(buckTaskInput);
                 //操作完成，过程返回success
                 if ("success".equals(buckTaskInput.getReturnMessage())) {
                     //写日志
-                    LOGGER.info("任务下发RCS后更新货架任务状态成功"+buckTaskInput.getId());
+                    LOGGER.info("任务下发RCS后更新货架任务状态成功："+buckTaskInput.getId());
                 } else {
                     //写日志
-                    LOGGER.info("任务下发RCS后更新货架任务状态失败"+buckTaskInput.getId());
+                    LOGGER.info("任务下发RCS后更新货架任务状态失败："+buckTaskInput.getId()+",原因:"+buckTaskInput.getReturnMessage());
                 }
             } else {
-                LOGGER.info("任务下发RCS失败"+buckTaskInput.getId());
+                LOGGER.info("任务下发RCS失败:"+buckTaskInput.getId()+",原因:"+rcsReturnVo.getMsg());
                 //下发任务失败、更新任务的send_count减1
                 //不给定任务状态参数，说明是send_count减1
                 businessActionDao.refreshTask(buckTaskInput);
@@ -138,7 +138,7 @@ public class JobHanderServiceImpl implements IJobHanderService{
     */
     public void queryRcsBucketInfo() {
         try {
-            String URL = "http://127.0.0.1:7777/test/";
+            String URL = "http://127.0.0.1:10080/test/";
 
             HttpHeaders header = new HttpHeaders();
             header.add("Accept", MediaType.APPLICATION_JSON.toString());

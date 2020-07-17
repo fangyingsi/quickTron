@@ -39,7 +39,8 @@
                             qt_pick_task pk,
                             qt_bucket_task bk,
                             qt_bucket b,
-                            qt_station_dtl sd,-- qt_station st,
+                            qt_station_dtl sd,
+                            qt_station st,
                         -- qt_user u,
                             qt_slot s
                         WHERE
@@ -49,6 +50,8 @@
                             AND pk.task_status = 1 -- 1表示已从拣货下发bucket task
                             AND bk.task_status = 99 -- DONE才推送给前端
                             AND pk.ws_code = sd.ws_code -- AND sd.ws_code = st.ws_code
+                            AND sd.ws_code = st.ws_code
+                            AND st.job_mode ='DOWN' -- 只有下架时弹出信息
                             AND bk.end_point = sd.point_code -- 目标是工作站点位
                             AND b.point_code = sd.point_code -- 货架在工作站点位上
                             AND pk.slot_code = s.slot_code -- AND cast( st.update_by AS UNSIGNED INT ) = u.id
@@ -74,7 +77,8 @@
                             qt_pick_task pk,
                             qt_bucket_task bk,
                             qt_bucket b,
-                            qt_station_dtl sd,-- qt_station st,
+                            qt_station_dtl sd,
+                            qt_station st,
                         -- qt_user u,
                             qt_slot s
                         WHERE
@@ -84,6 +88,8 @@
                             AND pk.task_status = 1 -- 1表示已从拣货下发bucket task
                             AND bk.task_status = 99 -- DONE才推送给前端
                             AND pk.ws_code = sd.ws_code -- AND sd.ws_code = st.ws_code
+                            AND sd.ws_code = st.ws_code
+                            AND st.job_mode ='DOWN' -- 只有下架时弹出信息
                             AND bk.end_point = sd.point_code -- 目标是工作站点位
                             AND b.point_code = sd.point_code -- 货架在工作站点位上
                             AND pk.slot_code = s.slot_code -- AND cast( st.update_by AS UNSIGNED INT ) = u.id
