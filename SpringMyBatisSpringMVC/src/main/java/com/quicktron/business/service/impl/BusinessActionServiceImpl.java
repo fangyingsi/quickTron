@@ -232,6 +232,34 @@ public class BusinessActionServiceImpl implements IBusinessActionService {
     }
 
 
+    /*恢复货架任务的可下发次数
+    * */
+    public Map<String, Object> reverseTask(ReportParamInVO inputVo){
+
+        //初始化返回值
+        Map<String, Object> responseMap = new HashMap<String, Object>();
+        responseMap.put("returnStatus", "success");
+        responseMap.put("returnMessage", "ok");
+
+        try {
+            businessActionDao.reverseTask(inputVo);
+            //操作完成，过程返回success
+            if ("success".equals(inputVo.getReturnMessage())) {
+                return responseMap;
+            }else {
+                //过程返回不成功
+                responseMap.put("returnStatus", "fail");
+                responseMap.put("returnMessage", inputVo.getReturnMessage());
+            }
+        } catch (Exception e) {
+            LOGGER.error("Internal error:"+e.getMessage());
+            responseMap.put("returnStatus", "fail");
+            responseMap.put("returnMessage", "Internal error:"+e.getMessage());
+        }
+        return responseMap;
+    }
+
+
     /*货架到站时主动根据货架编码查出拣货任务是哪个工作站的，发消息给工作站登录人员
     * */
     @Override

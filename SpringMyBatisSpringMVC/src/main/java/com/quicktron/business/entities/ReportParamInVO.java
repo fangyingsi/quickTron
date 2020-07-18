@@ -8,6 +8,10 @@ public class ReportParamInVO extends TableBaseVO{
     /*工作站编码
      */
     private String wsCode;
+
+    /*jobID拼接
+     */
+    private String ids;
     /*货架编码
     */
     private String bucketCode;
@@ -40,6 +44,9 @@ public class ReportParamInVO extends TableBaseVO{
     /*操作类型
      */
     private String operateType;
+    /*可下发次数
+    */
+    private Integer sendCount;
 
     private String returnMessage;
 

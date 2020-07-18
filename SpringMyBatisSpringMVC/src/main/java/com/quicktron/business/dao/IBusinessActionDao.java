@@ -35,4 +35,6 @@ public interface IBusinessActionDao {
      * */
     void submitPickTask(@Param("_vo")ReportParamInVO inputVo);
 
+    void reverseTask(@Param("_vo")ReportParamInVO inputVo);
+
 }

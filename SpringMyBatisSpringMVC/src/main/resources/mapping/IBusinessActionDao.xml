@@ -207,4 +207,11 @@
 									  }
         </select>
 
+     <select id="reverseTask" statementType="CALLABLE" resultType="com.quicktron.business.entities.ReportParamInVO">
+          {call p_qt_reverse_task(#{_vo.ids,mode=IN,jdbcType=VARCHAR},
+                                  #{_vo.updateBy,mode=IN,jdbcType=VARCHAR},
+                                  #{_vo.returnMessage,mode=OUT,jdbcType=VARCHAR})
+		}
+     </select>
+
 </mapper>

@@ -132,5 +132,26 @@ public class PcBusinessController {
         return responseMap;
     }
 
+    /*恢复货架任务的可下发次数
+     * */
+    @ResponseBody
+    @RequestMapping(value = "/reverseTask",method= RequestMethod.POST)
+    public Map<String, Object> reverseTask(@RequestBody Map<String,String> map){
+        //返回值
+        Map<String, Object> responseMap = new HashMap<String, Object>();
+        try {
+            //获取入参到VO中,要传入 jobid连接串，更新人
+            ReportParamInVO paramInVO = new ReportParamInVO();
+            paramInVO.setIds(map.get("ids"));
+            paramInVO.setUpdateBy(map.get("updateBy"));
+            return businessActionService.reverseTask(paramInVO);
+        }catch(Exception e){
+            LOGGER.error("Internal error:"+e.getMessage());
+            responseMap.put("returnStatus","fail");
+            responseMap.put("returnMessage","Internal error");
+        }
+        return responseMap;
+    }
+
 
 }

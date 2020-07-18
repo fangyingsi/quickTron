@@ -34,6 +34,10 @@ public interface IBusinessActionService {
     /*根据LPN下发一条拣货任务
      * */
     Map<String, Object> callByLpn(ReportParamInVO inputVo);
+    
+    /*恢复货架任务的可下发次数
+     * */
+    Map<String, Object> reverseTask(ReportParamInVO inputVo);
 
     /*根据bucketcode查询待拣货位
      * */

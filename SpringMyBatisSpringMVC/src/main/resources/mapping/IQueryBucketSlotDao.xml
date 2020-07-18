@@ -9,6 +9,7 @@
         <id column="id" property="id" jdbcType="BIGINT"/>
         <result column="bucket_code" property="bucketCode" jdbcType="VARCHAR"/>
         <result column="task_status" property="taskStatus" jdbcType="VARCHAR" />
+        <result column="send_count" property="sendCount" jdbcType="INTEGER" />
         <result column="end_point" property="endPoint" jdbcType="VARCHAR" />
         <result column="point_code" property="pointCode" jdbcType="VARCHAR" />
         <result column="create_by" property="createBy" jdbcType="VARCHAR" />
@@ -222,13 +223,15 @@
 	</sql>
 
     <select id="queryBucketTask" resultMap="BaseResultMap">
-        select b.bucket_code,
+        select t.id,
+              b.bucket_code,
               (select l.meaning
                 from qt_lookup_value l
                where l.lookup_type ='TASK_STATUS'
                  and l.lookup_code =t.task_status)task_status,
                b.point_code,
                t.end_point,
+               t.send_count,
               (select u.user_code
                  from qt_user u
                 where cast(t.create_by AS UNSIGNED INT ) = u.id) create_by,
