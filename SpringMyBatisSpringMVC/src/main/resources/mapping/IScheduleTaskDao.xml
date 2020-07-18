@@ -16,7 +16,27 @@
         SELECT
 	          t.id AS "robotJobId",
 	          t.bucket_code AS "bucketCode",
-	          t.start_point AS "startPoint",
+		      (select lv.meaning
+		         from qt_lookup_value lv
+		        where lookup_type ='RCS_TASK_FIX_PARAM'
+		          and lookup_code ='warehouseId') as "warehouseId",
+		      (select lv.meaning
+		         from qt_lookup_value lv
+		        where lookup_type ='RCS_TASK_FIX_PARAM'
+		         and lookup_code ='zoneCode') as "zoneCode",
+		      (select lv.meaning
+		         from qt_lookup_value lv
+		        where lookup_type ='RCS_TASK_FIX_PARAM'
+		         and lookup_code ='workFace') as "workFace",
+		      (select lv.meaning
+		         from qt_lookup_value lv
+		        where lookup_type ='RCS_TASK_FIX_PARAM'
+		          and lookup_code ='transportEntityType') as "transportEntityType",
+		      (select lv.meaning
+		         from qt_lookup_value lv
+		        where lookup_type ='RCS_TASK_FIX_PARAM'
+		          and lookup_code ='checkCode') as "checkCode",
+		      t.start_point AS "startPoint",
 	          t.end_area AS "endArea",
 	          t.end_point AS "endPoint",
 	          t.let_down_flag AS "letDownFlag"

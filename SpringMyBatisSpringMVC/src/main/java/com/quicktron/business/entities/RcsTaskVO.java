@@ -11,11 +11,11 @@ public class RcsTaskVO {
 
     /*仓库编号
      */
-    private Long warehouseId = Long.parseLong("1");
+    private Long warehouseId;
 
     /*货架当前所属库区
      */
-    private String zoneCode ="kckq";
+    private String zoneCode;
     /*货架编号
      */
     private String bucketCode;
@@ -24,7 +24,7 @@ public class RcsTaskVO {
     private String startPoint;
     /*作业面朝向
      */
-    private Integer workFace = 1;
+    private Integer workFace;
     /*目标货架的可以停靠的货架区域
      */
     private String endArea;
@@ -33,10 +33,10 @@ public class RcsTaskVO {
     private String endPoint;
     /*任务搬运或操作的对象
      */
-    private String transportEntityType ="BUCKET";
+    private String transportEntityType;
     /*是，校验搬运对象编码；否，不校验搬运对象编码，默认值：是，0-不校验，1-校验（默认）
      */
-    private Integer checkCode = 1;
+    private Integer checkCode ;
     /*在线任务到达地点不放下货架，在线任务放下货架，离线任务放下货架
     {"online"/
      "standby"/
