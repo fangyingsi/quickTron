@@ -48,7 +48,7 @@ public class JobHanderServiceImpl implements IJobHanderService{
     public boolean sendRcsTask(RcsTaskVO taskVO){
         //任务下发成功就可以算成功，不用再看货架任务更新是否成功，因为后面RCS会主动更新状态
         boolean result = false;
-        String URL = "http://192.168.1.120:10080/api/quicktron/rcs/standardized.robot.job.submit";
+        String URL = "http://10.116.35.175:10080/api/quicktron/rcs/standardized.robot.job.submit";
         LOGGER.info("开始下发任务编码:"+taskVO.getRobotJobId());
         try {
             //下发任务前校验
@@ -138,7 +138,7 @@ public class JobHanderServiceImpl implements IJobHanderService{
     */
     public void queryRcsBucketInfo() {
         try {
-            String URL = "http://127.0.0.1:10080/test/";
+            String URL = "http://10.116.35.175:10080/test/";
 
             HttpHeaders header = new HttpHeaders();
             header.add("Accept", MediaType.APPLICATION_JSON.toString());
