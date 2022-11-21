@@ -15,7 +15,7 @@
         <jackson.version>2.9.9</jackson.version>
         <jetty.version>8.1.21.v20160908</jetty.version>
         <cxf.version>3.0.4</cxf.version>
-        <xxl.job.version>2.2.1-SNAPSHOT</xxl.job.version>
+        <xxl.job.version>2.3.1</xxl.job.version>
         <jetty-maven.version>9.4.26.v20200117</jetty-maven.version>
     </properties>
 
